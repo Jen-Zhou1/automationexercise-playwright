@@ -1,0 +1,9 @@
+node_modules/
+dist/
+reports/          # 每次运行的报告+产物（按时间戳隔离），不入库
+playwright-report/
+test-results/
+.cache/
+*.log
+.env
+*.pdf            # 测试下载的发票等
