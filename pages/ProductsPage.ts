@@ -1,9 +1,9 @@
 /**
- * 商品列表 / 搜索页（pages/ProductsPage.ts）
- * 已核实结构：
- *  - 搜索框 #search_product + 按钮 #submit_search（JS 跳转 /products?search=）
- *  - 商品卡 .single-products → .productinfo p(名称) h2(价 Rs.) a.add-to-cart[data-product-id]
- *  - 加购成功弹窗 #cartModal（"Added!" + View Cart 链接 + Continue Shopping）
+ * Product Catalog / search page (pages/ProductsPage.ts)
+ * Verified structure:
+ *  - Search box `#search_product` + button `#submit_search` (JS redirects to `/products?search=`)
+ *  - Product cards `.single-products` → `.productinfo p` (name), `h2` (price in Rs.), `a.add-to-cart[data-product-id]`
+ *  - Add-to-cart success modal `#cartModal` ("Added!" + View Cart link + Continue Shopping)
  */
 import { Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
@@ -20,7 +20,7 @@ export class ProductsPage extends BasePage {
     '.item.active .add-to-cart',
   );
 
-  // 加购弹窗
+  // Add-to-cart modal
   readonly cartModal: Locator = this.page.locator('#cartModal');
   readonly modalViewCart: Locator = this.page.locator('#cartModal a[href="/view_cart"]');
   readonly continueShoppingButton: Locator = this.page.locator('#cartModal .close-modal');
@@ -29,7 +29,7 @@ export class ProductsPage extends BasePage {
     await super.goto('/products');
   }
 
-  /** 搜索：填关键词 → 点击 → 等待整页跳转完成 */
+  /** Search: fill keyword → click → wait for the full-page redirect to finish */
   async search(keyword: string): Promise<void> {
     await this.fill(this.searchBox, keyword);
     await this.click(this.searchButton);
@@ -37,31 +37,31 @@ export class ProductsPage extends BasePage {
     await this.productCards.first().waitFor({ state: 'visible' });
   }
 
-  /** 按名称定位商品卡（名称唯一；过滤掉其它卡片的噪声） */
+  /** Locate a product card by name (the name is unique; this filters out other cards) */
   productCard(name: string): Locator {
     return this.productCards.filter({ hasText: name }).first();
   }
 
-  /** 按类别名称定位侧栏类别标题。 */
+  /** Locate a category heading in the sidebar by category name. */
   categoryHeading(name: string): Locator {
     return this.categorySidebar.locator(`.panel-title a[href="#${name}"]`);
   }
 
-  /** 按子类别名称定位类别链接。 */
+  /** Locate a category link by subcategory name. */
   categoryLink(name: string): Locator {
     return this.categorySidebar.locator('a[href^="/category_products/"]').filter({
       hasText: name,
     }).first();
   }
 
-  /** 按品牌名称定位侧栏链接。 */
+  /** Locate a brand link in the sidebar by brand name. */
   brandLink(name: string): Locator {
     return this.brandSidebar.locator('a[href^="/brand_products/"]').filter({
       hasText: name,
     }).first();
   }
 
-  /** 从商品卡片打开对应详情页。 */
+  /** Open the product details page from the product card. */
   async openProductDetails(name: string): Promise<void> {
     await this.page
       .locator('.product-image-wrapper')
@@ -71,17 +71,17 @@ export class ProductsPage extends BasePage {
       .click();
   }
 
-  /** 打开指定商品分类。 */
+  /** Open a specific product category. */
   async openCategory(name: string): Promise<void> {
     await this.click(this.categoryLink(name));
   }
 
-  /** 打开指定品牌商品列表。 */
+  /** Open the product list for a specific brand. */
   async openBrand(name: string): Promise<void> {
     await this.click(this.brandLink(name));
   }
 
-  /** 从当前展示的推荐商品中加购第一件，并等待站点确认弹窗。 */
+  /** Add the first currently displayed recommended product to cart and wait for the confirmation modal. */
   async addRecommendedProductToCart(): Promise<void> {
     await this.recommendedItems.scrollIntoViewIfNeeded();
     const activeProduct = this.recommendedItems.locator('.item.active');
@@ -91,9 +91,9 @@ export class ProductsPage extends BasePage {
   }
 
   /**
-   * 点击某个商品的"Add to cart"，等待弹窗出现，返回其 product-id。
-   * 注意：卡片 DOM 里有两个 add-to-cart 链接（info 层 + overlay 悬浮层），
-   * 只点 .productinfo 里那个可见的。
+   * Click the "Add to cart" button for a specific product and wait for the modal; return its product-id.
+   * Note: The card DOM contains two add-to-cart links (info layer + overlay),
+   * so only the visible one inside `.productinfo` should be clicked.
    */
   async addToCartByName(name: string): Promise<string> {
     const card = this.productCard(name);
@@ -108,7 +108,7 @@ export class ProductsPage extends BasePage {
     return productId;
   }
 
-  /** 点击商品卡片的加购按钮，不等待成功弹窗（用于验证失败响应）。 */
+  /** Click the add-to-cart button on a product card without waiting for the success modal (used to validate failure responses). */
   async clickAddToCartByName(name: string): Promise<void> {
     await this.productCard(name).locator('.productinfo a.add-to-cart').click();
   }
@@ -121,7 +121,7 @@ export class ProductsPage extends BasePage {
     await this.click(this.continueShoppingButton);
   }
 
-  /** 当前页商品名列表（搜索断言用） */
+  /** Names of the products currently visible on the page (used for search assertions) */
   async getVisibleProductNames(): Promise<string[]> {
     return this.productCards.locator('.productinfo p').allInnerTexts();
   }

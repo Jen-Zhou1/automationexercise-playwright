@@ -1,6 +1,7 @@
 /**
- * Independent checkout E2E journeys for registration before shopping, registration
- * during checkout, and an existing user signing in before checkout.
+ * Independent Checkout E2E: TC 14-16, 23, 24
+ * Registered/Logged-in before shopping
+ * Anonymous checkout, then sign in before checkout: TC 14, 24
  */
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
@@ -66,9 +67,9 @@ async function deleteCurrentAccount(page: Page): Promise<void> {
   await home.expectLoggedOut();
 }
 
-test.describe('结算 E2E（独立用户路径）', () => {
+test.describe('Checkout E2E (independent user paths)', () => {
   for (const card of PAYMENT_CARDS) {
-    test(`注册后购物 → 支付(${card.label}) → 下载发票 → 删除账户 @regression`, async (
+    test(`Shop after Registration → Pay (${card.label}) → Download Invoice → Delete Account @regression`, async (
       { authedUser },
       testInfo,
     ) => {
@@ -108,7 +109,7 @@ test.describe('结算 E2E（独立用户路径）', () => {
     });
   }
 
-  test('访客结算时注册 → 下单并下载发票（官方场景 14、24） @regression', async (
+  test('Register during Guest Checkout → Place Order → Download invoice @regression', async (
     { page },
     testInfo,
   ) => {
@@ -132,11 +133,11 @@ test.describe('结算 E2E（独立用户路径）', () => {
     expect(invoice).toContain(
       `Hi ${user.name}, Your total purchase amount is ${PRODUCTS.blueTop.unitPrice}. Thank you`,
     );
-    log.pass('结算时注册流程的发票已下载，客户名和订单金额正确');
+    log.pass('Invoice downloaded for the register-during-checkout E2E; customer name and order amount are correct');
     await deleteCurrentAccount(page);
   });
 
-  test('已有用户登录后结算并完成订单（官方场景 16） @regression', async ({
+  test('Sign In before Checkout → Place Order @regression', async ({
     page,
     authedUser,
   }) => {

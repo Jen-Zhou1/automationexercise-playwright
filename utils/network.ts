@@ -1,11 +1,11 @@
 /**
- * 网络层工具（utils/network.ts）
+ * Network layer utilities (utils/network.ts)
  * ---------------------------------------------------------------------------
- * 对应需求 "Network Interception and Mocking"：
- *  1. blockThirdPartyAds  —— 拦截并中止广告/统计请求（稳定性 + 视觉基线干净）
- *  2. spyOnAddToCart      —— 监听（不篡改）加购 AJAX，验证请求确实发出且参数正确
- *  3. mockAddToCartFailure—— Mock 服务端 500，验证前端错误处理路径
- * 站点加购/删除均为 jQuery AJAX：
+ * Corresponding requirement: "Network Interception and Mocking":
+ *  1. blockThirdPartyAds  —— intercept and abort ad/analytics requests (stability + clean visual baseline)
+ *  2. spyOnAddToCart      —— listen to add-to-cart AJAX without altering it and verify the request is sent with valid parameters
+ *  3. mockAddToCartFailure—— mock a server 500 to validate the frontend error-handling path
+ * The site uses jQuery AJAX for add-to-cart and remove-from-cart:
  *   GET /add_to_cart/<product_id>?quantity=N
  *   GET /delete_cart/<product_id>
  */
@@ -13,12 +13,12 @@ import type { Page, Request } from '@playwright/test';
 import { env } from '../config/env';
 import { log } from './logger';
 
-/** 拦截并中止第三方广告/统计请求 */
+/** Intercept and abort third-party ad/analytics requests */
 export async function blockThirdPartyAds(page: Page): Promise<void> {
   for (const pattern of env.adDomains) {
     await page.route(pattern, (route) => route.abort());
   }
-  log.info(`已屏蔽第三方广告/统计域名：${env.adDomains.length} 条规则`);
+  log.info(`Blocked third-party ad/analytics domains: ${env.adDomains.length} rules`);
 }
 
 export interface AddToCartCall {
@@ -27,7 +27,7 @@ export interface AddToCartCall {
   url: string;
 }
 
-/** 监听加购请求（pass-through，不修改响应），返回调用记录 */
+/** Listen for add-to-cart requests (pass-through, do not modify the response) and return the call log */
 export function spyOnAddToCart(page: Page): AddToCartCall[] {
   const calls: AddToCartCall[] = [];
   page.on('request', (req: Request) => {
@@ -44,15 +44,15 @@ export function spyOnAddToCart(page: Page): AddToCartCall[] {
   return calls;
 }
 
-/** Mock：让所有加购请求返回 500，用于验证错误路径（弹窗不应出现） */
+/** Mock all add-to-cart requests to return 500 to validate the error path (the modal should not appear) */
 export async function mockAddToCartFailure(page: Page): Promise<void> {
   await page.route('**/add_to_cart/**', (route) =>
     route.fulfill({ status: 500, contentType: 'text/plain', body: 'mock: server error' }),
   );
-  log.info('已 Mock:/add_to_cart/** 将返回 500');
+  log.info('Mocked: /add_to_cart/** will now return 500');
 }
 
-/** 取消所有 Mock 恢复真实请求（可选，测试内一般不需要） */
+/** Clear all mocks and restore real requests (optional; generally not needed inside a test) */
 export async function resetNetworkMocks(page: Page): Promise<void> {
   await page.unroute('**/add_to_cart/**');
 }

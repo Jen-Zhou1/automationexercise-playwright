@@ -1,6 +1,6 @@
 /**
- * Product detail coverage for official cases 8, 13, 17, and 21:
- * verify details/reviews, add a requested quantity, and remove the product from cart.
+ * PDP: TC 8, 13, 17, 21
+ * Verify product details/reviews, add target qty, remove product from cart
  */
 import { test, expect } from '../fixtures/base-fixtures';
 import { ProductDetailPage } from '../pages/ProductDetailPage';
@@ -10,7 +10,7 @@ import { PRODUCT_DETAIL_SCENARIO, PRODUCTS } from '../testdata/products';
 import { uniqueEmail } from '../utils/data-generator';
 import { log } from '../utils/logger';
 
-test('验证商品目录、详情字段并提交商品评价（官方场景 8、21） @regression', async ({ page }) => {
+test('Verify Product Catalog & Details → Submit Product Review @regression', async ({ page }) => {
   const products = new ProductsPage(page);
   await products.goto();
   await expect(products.productPageHeading).toHaveText('All Products');
@@ -35,27 +35,27 @@ test('验证商品目录、详情字段并提交商品评价（官方场景 8、
   await expect(detail.reviewSuccessMessage).toBeVisible();
 });
 
-test('商品详情页按数量加购 → 购物车数量与小计正确 → 移除商品 @regression', async ({ page }) => {
+test('Add to Cart from PDP with Set QTY → Verify Cart QTY & Total → Remove Product @regression', async ({ page }) => {
   const { product, quantity, expectedLineTotal } = PRODUCT_DETAIL_SCENARIO;
 
-  // 1. 打开详情页，设置数量后加购
+  // 1. Open PDP, set QTY, and add to cart
   const detail = new ProductDetailPage(page);
   await detail.goto(product.id);
   await detail.setQuantity(quantity);
   await detail.addToCart();
   await detail.viewCartFromModal();
 
-  // 2. Verify the product row, requested quantity, and calculated line total.
+  // 2. Verify the product row, target QTY, and calculated line total.
   const cart = new CartPage(page);
   await expect(cart.productRows).toHaveCount(1);
   await expect(cart.productRows.first()).toContainText(product.name);
   await expect(cart.lineQuantity(product.id)).toHaveText(String(quantity));
   await expect(cart.lineTotal(product.id)).toHaveText(`Rs. ${expectedLineTotal}`);
-  log.pass(`购物车行：${product.name} × ${quantity}，小计 Rs. ${expectedLineTotal}`);
+  log.pass(`Cart row: ${product.name} × ${quantity}, subtotal Rs. ${expectedLineTotal}`);
 
-  // 3. 移除商品（AJAX 删除，行由 JS 移除）→ 空车状态
+  // 3. Remove cart item (AJAX delete; JS removes the row) → empty cart
   await cart.removeItem(product.id);
   await expect(cart.productRows).toHaveCount(0);
   await expect(cart.emptyCartMessage).toBeVisible();
-  log.pass('移除成功，购物车为空');
+  log.pass('Removal succeeded, cart is empty');
 });

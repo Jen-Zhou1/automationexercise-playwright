@@ -1,6 +1,6 @@
 /**
- * Cross-feature smoke journey: register a user, search/add a product, log out, then clean up.
- * Detailed checkout/payment and accessibility checks live in their dedicated suites.
+ * Smoke Test: Register, Search Product & Add to Cart, Log Out, Delete Account
+ * Detailed checkout/payment and accessibility checks live in their dedicated suites and targeted for regression-only.
  */
 import { test, expect } from '../fixtures/base-fixtures';
 import { HomePage } from '../pages/HomePage';
@@ -13,7 +13,7 @@ import { spyOnAddToCart, type AddToCartCall } from '../utils/network';
 import { log } from '../utils/logger';
 import { env } from '../config/env';
 
-test('新用户注册 → 搜索加购 → 登出并清理账户 @smoke', async ({
+test('Register New User → Search & Add-to-Cart → Logout & Delete Account @smoke', async ({
   page,
   registeredUser,
 }) => {
@@ -51,5 +51,5 @@ test('新用户注册 → 搜索加购 → 登出并清理账户 @smoke', async 
   await account.expectAccountDeleted();
   await account.continueToHome();
   await home.expectLoggedOut();
-  log.pass('注册、搜索加购、登出及账户清理 Smoke 流程通过');
+  log.pass('Registration, Search/Add-to-Cart, Logout, & Delete Account smoke test passed');
 });

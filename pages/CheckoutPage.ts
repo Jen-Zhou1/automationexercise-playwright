@@ -1,8 +1,8 @@
 /**
- * 结算页（pages/CheckoutPage.ts）
- * 已核实：地址确认 #address_delivery / #address_invoice；
- * 订单备注 #ordermsg textarea[name=message]；
- * Place Order → a.check_out[href="/payment"]。
+ * Checkout page (pages/CheckoutPage.ts)
+ * Verified: address confirmation `#address_delivery` / `#address_invoice`;
+ * Order Note `#ordermsg textarea[name=message]`;
+ * Place Order → `a.check_out[href="/payment"]`.
  */
 import { Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
@@ -24,7 +24,7 @@ export class CheckoutPage extends BasePage {
     await this.expectVisible(this.invoiceAddress);
   }
 
-  /** 核对配送和账单地址中的注册资料字段。 */
+  /** Check the registered details in the shipping and billing address sections. */
   async expectAddressesMatch(user: TestUser): Promise<void> {
     const expectedLines = [
       user.firstName,
@@ -46,7 +46,7 @@ export class CheckoutPage extends BasePage {
     }
   }
 
-  /** 确认结算页的订单明细表已显示。 */
+  /** Confirm that the checkout order-details table is visible. */
   async expectOrderReviewVisible(): Promise<void> {
     await this.expectVisible(this.reviewOrderHeading);
     await this.expectVisible(this.reviewOrderTable);

@@ -1,7 +1,7 @@
 /**
- * 支付页（pages/PaymentPage.ts）
- * 已核实 data-qa：name-on-card / card-number / cvc / expiry-month / expiry-year / pay-button。
- * 表单 POST /payment。
+ * Payment Page (pages/PaymentPage.ts)
+ * Verified data-qa fields: name-on-card / card-number / cvc / expiry-month / expiry-year / pay-button.
+ * Form submits to `/payment`.
  */
 import { Locator } from '@playwright/test';
 import { BasePage } from './BasePage';

@@ -1,6 +1,6 @@
 /**
- * Anonymous catalog coverage for official cases 12, 18, 19, and 22:
- * multi-item cart, category/brand browsing, and recommended products.
+ * Anonymous Product Catalog/Home Page: TC 12, 18, 19, 22
+ * Multi-item cart, category/brand browsing, recommended products
  */
 import { test, expect } from '../fixtures/base-fixtures';
 import { CartPage } from '../pages/CartPage';
@@ -8,7 +8,7 @@ import { HomePage } from '../pages/HomePage';
 import { ProductsPage } from '../pages/ProductsPage';
 import { PRODUCTS } from '../testdata/products';
 
-test('同一购物车加入多个商品并核对价格与数量（官方场景 12） @regression', async ({ page }) => {
+test('Add Multiple Products to Cart → Verify Price & QTY @regression', async ({ page }) => {
   const products = new ProductsPage(page);
   await products.goto();
   const firstId = await products.addToCartByName(PRODUCTS.blueTop.name);
@@ -26,7 +26,7 @@ test('同一购物车加入多个商品并核对价格与数量（官方场景 1
   await expect(cart.lineTotal(secondId)).toContainText(String(PRODUCTS.menTshirt.unitPrice));
 });
 
-test('浏览商品分类及品牌，验证列表并从品牌商品加购（官方场景 18、19） @regression', async ({ page }) => {
+test('Browse Categories & Brands → Verify Lists → Add to Cart from Brand Page @regression', async ({ page }) => {
   const products = new ProductsPage(page);
   await products.goto();
   await expect(products.categorySidebar).toBeVisible();
@@ -58,7 +58,7 @@ test('浏览商品分类及品牌，验证列表并从品牌商品加购（官�
   await expect(products.productCards.first()).toBeVisible();
 });
 
-test('从首页推荐商品区加购并在购物车中验证（官方场景 22） @regression', async ({ page }) => {
+test('Add Recommended Product to Cart → Verify Cart @regression', async ({ page }) => {
   const products = new ProductsPage(page);
   await new HomePage(page).open();
   await expect(products.recommendedItems).toBeVisible();

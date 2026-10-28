@@ -1,9 +1,9 @@
 /**
- * 测试数据生成器（utils/data-generator.ts）
+ * Test data generator (utils/data-generator.ts)
  * ---------------------------------------------------------------------------
- * 为什么需要它：站点是共享演示站，账号数据会持久化。
- * 每次运行生成"唯一邮箱 + 随机姓名"，避免 "Email Address already exist!" 冲突，
- * 保证任意并发/重复执行都互不影响（数据驱动 + 幂等的基础）。
+ * Why it exists: the site is a shared demo site and account data persists.
+ * Each run generates a "unique email + random name" to avoid "Email Address already exist!" conflicts
+ * Ensure that any parallel or repeated execution remains isolated and deterministic.
  */
 import { randomUUID } from 'node:crypto';
 import { env } from '../config/env';
@@ -17,17 +17,17 @@ function pick<T>(list: readonly T[]): T {
   const index = Math.floor(Math.random() * list.length);
   const value = list[index];
   if (value === undefined) {
-    throw new Error(`pick() 索引越界：${index}`);
+    throw new Error(`pick() index out of range: ${index}`);
   }
   return value;
 }
 
-/** 唯一邮箱：qa_<时间戳>_<随机串>@example.com */
+/** Unique email: qa_<timestamp>_<random>@example.com */
 export function uniqueEmail(prefix = 'qa'): string {
   return `${prefix}_${Date.now()}_${randomUUID().replace(/-/g, '')}@example.com`;
 }
 
-/** 生成一个完整可注册的测试用户（字段与站点注册表单一一对应） */
+/** Generate a complete, registerable test user whose fields match the site's registration form */
 export function generateUser(overrides: Partial<TestUser> = {}): TestUser {
   const firstName = pick(FIRST_NAMES);
   const lastName = pick(LAST_NAMES);

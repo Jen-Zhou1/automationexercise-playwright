@@ -1,8 +1,8 @@
 /**
- * 订单确认页（pages/OrderConfirmationPage.ts）
- * 已核实：h2[data-qa="order-placed"] "Order Placed!" +
+ * Order confirmation page (pages/OrderConfirmationPage.ts)
+ * Verified: `h2[data-qa="order-placed"]` shows "Order Placed!" +
  * "Congratulations! Your order has been confirmed!" +
- * 下载发票链接 a[href^="/download_invoice/"]（演示站返回纯文本发票内容）。
+ * Invoice download link `a[href^="/download_invoice/"]` (the demo site returns plain-text invoice content).
  */
 import { Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
@@ -21,8 +21,8 @@ export class OrderConfirmationPage extends BasePage {
   }
 
   /**
-   * 下载发票并保存到本次运行目录。
-   * @returns 保存的绝对路径
+   * Download the invoice and save it to this run's directory.
+   * @returns The saved absolute path
    */
   async downloadInvoice(savePath: string): Promise<string> {
     const [download] = await Promise.all([
@@ -31,12 +31,12 @@ export class OrderConfirmationPage extends BasePage {
     ]);
     await download.saveAs(savePath);
     if (!existsSync(savePath)) {
-      throw new Error(`发票文件未成功保存：${savePath}`);
+      throw new Error(`Invoice file was not saved successfully: ${savePath}`);
     }
     return savePath;
   }
 
-  /** 点击订单确认页 Continue 返回首页。 */
+  /** Click Continue on the order confirmation page to return home. */
   async continueToHome(): Promise<void> {
     await this.click(this.continueButton);
   }

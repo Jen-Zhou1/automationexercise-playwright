@@ -1,6 +1,6 @@
 /**
- * 轻量日志工具（utils/logger.ts）
- * 让 CI / 本地终端输出有结构、可读；不引入第三方依赖。
+ * Lightweight logging utility (utils/logger.ts)
+ * Keeps CI/local terminal output structured and readable without introducing third-party dependencies.
  */
 const ts = () => new Date().toISOString().slice(11, 19);
 

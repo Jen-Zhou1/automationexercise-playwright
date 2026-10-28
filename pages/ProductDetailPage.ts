@@ -1,6 +1,6 @@
 /**
- * 商品详情页（pages/ProductDetailPage.ts）
- * 已核实：数量输入 #quantity，加购按钮 class="cart"（读隐藏域 #product_id）。
+ * PDP/Product Detail page (pages/ProductDetailPage.ts)
+ * Verified: quantity input `#quantity`, add-to-cart button `class="cart"` (reads hidden field `#product_id`).
  */
 import { Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
@@ -46,7 +46,7 @@ export class ProductDetailPage extends BasePage {
     await this.click(this.modalViewCart);
   }
 
-  /** 提交商品名称、邮箱和评价内容。 */
+  /** Submit the product name, email, and review text. */
   async submitReview(name: string, email: string, review: string): Promise<void> {
     await this.fill(this.reviewName, name);
     await this.fill(this.reviewEmail, email);

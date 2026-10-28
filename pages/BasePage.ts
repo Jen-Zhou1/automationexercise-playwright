@@ -1,8 +1,8 @@
 /**
- * POM 基类（pages/BasePage.ts）
+ * POM base class (pages/BasePage.ts)
  * ---------------------------------------------------------------------------
- * 所有页面对象的父类：只放"通用能力"，不放业务。
- * 定位策略统一为：data-qa 属性 > #id > 语义 class > 文本（见 README「定位策略」）。
+ * Base class for all page objects: it contains only shared capabilities, not business logic.
+ * Locator strategy is standardized as: data-qa attribute > #id > semantic class > text (see README "selector strategy").
  */
 import { Page, Locator, expect } from '@playwright/test';
 import { env } from '../config/env';
@@ -12,7 +12,7 @@ export const SITE_OVERLOAD_MESSAGE = 'This website is under heavy load (queue fu
 export class BasePage {
   constructor(protected readonly page: Page) {}
 
-  /** 打开站内相对路径 */
+  /** Open a site-relative path */
   async goto(path: string): Promise<void> {
     await this.page.goto(path, {
       waitUntil: 'domcontentloaded',
@@ -45,7 +45,7 @@ export class BasePage {
     await expect(locator).toContainText(text);
   }
 
-  /** 等待 URL 匹配（Playwright 自动等待，替代固定 sleep） */
+  /** Wait for the URL to match (Playwright auto-waiting replaces fixed sleep) */
   protected async expectUrl(pattern: RegExp | string): Promise<void> {
     await this.page.waitForURL(pattern);
   }

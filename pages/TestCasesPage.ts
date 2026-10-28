@@ -1,6 +1,6 @@
 /**
- * Automation Exercise 官方测试用例目录页。
- * 页面使用指向 #collapse1–#collapse26 的链接展示 26 个演练场景。
+ * Automation Exercise official test-cases directory page.
+ * The page uses links pointing to `#collapse1`–`#collapse26` to display 26 walkthrough scenarios.
  */
 import { Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
@@ -22,7 +22,7 @@ export class TestCasesPage extends BasePage {
     exact: true,
   });
 
-  /** 从首页导航打开官方测试用例目录页。 */
+  /** Open the official test-cases directory page from the home navigation. */
   async open(): Promise<void> {
     await this.goto('/');
     await this.click(this.navigationLink);

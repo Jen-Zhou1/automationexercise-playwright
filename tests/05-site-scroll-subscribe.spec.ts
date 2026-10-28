@@ -1,13 +1,13 @@
 /**
- * Official cases 10, 11, 25, and 26: home/cart subscriptions and both scroll-to-top
- * behaviors (arrow control and manual scrolling).
+ * Footer subscriptions, Home/Cart's scroll-to-top: TC 10, 11, 25, 26
+ * Behaviors (arrow control and manual scrolling)
  */
 import { test, expect } from '../fixtures/base-fixtures';
 import { HomePage } from '../pages/HomePage';
 import { CartPage } from '../pages/CartPage';
 import { uniqueEmail } from '../utils/data-generator';
 
-test('滚动到底部后分别使用回顶箭头和键盘回顶（官方场景 25、26） @regression', async ({ page }) => {
+test('Scroll to Bottom - Back-to-Top Arrow @regression', async ({ page }) => {
   const home = new HomePage(page);
   await home.open();
 
@@ -22,7 +22,7 @@ test('滚动到底部后分别使用回顶箭头和键盘回顶（官方场景 2
   await expect(home.heroHeading).toBeInViewport();
 });
 
-test('首页订阅成功提示（官方场景 10） @regression', async ({ page }) => {
+test('Success Message on Home Subscription @regression', async ({ page }) => {
   const home = new HomePage(page);
   await home.open();
   await home.scrollToFooter();
@@ -33,7 +33,7 @@ test('首页订阅成功提示（官方场景 10） @regression', async ({ page 
   );
 });
 
-test('购物车页订阅成功提示（官方场景 11） @regression', async ({ page }) => {
+test('Success Message on Cart Subscription @regression', async ({ page }) => {
   const cart = new CartPage(page);
   await cart.goto();
   await cart.subscription.heading.scrollIntoViewIfNeeded();

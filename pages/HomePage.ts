@@ -1,6 +1,6 @@
 /**
- * 首页 / 全局头部导航（pages/HomePage.ts）
- * 头部导航在每个页面都存在，登录态断言统一放这里。
+ * Home page / Header navigation (pages/HomePage.ts)
+ * Header is present on every page, and login-state assertions are centralized here.
  */
 import { Locator, expect, type Page } from '@playwright/test';
 import { BasePage } from './BasePage';
@@ -8,7 +8,7 @@ import { SubscriptionSection } from './SubscriptionSection';
 
 export class HomePage extends BasePage {
   readonly subscription: SubscriptionSection;
-  // —— 全局头部导航（已核实的 href）——
+  // —— Header Navigation (verified hrefs) ——
   readonly signupLoginLink: Locator = this.page.locator('a[href="/login"]');
   readonly logoutLink: Locator = this.page.locator('a[href="/logout"]');
   readonly deleteAccountLink: Locator = this.page.locator('a[href="/delete_account"]');
@@ -30,14 +30,14 @@ export class HomePage extends BasePage {
     await this.goto('/');
   }
 
-  /** 断言已登录为指定用户（站点在头部显示 "Logged in as <名字>"） */
+  /** Assert that the specified user is logged in (the site shows "Logged in as <name>" in the header) */
   async expectLoggedInAs(name: string): Promise<void> {
     await expect(this.page).toHaveURL('/');
     await expect(this.page.locator('a[href="/logout"]')).toBeVisible({ timeout: 15_000 });
     await this.expectText(this.loggedInAs, name);
   }
 
-  /** 断言已登出（出现 Signup/Login，没有 Logout） */
+  /** Assert that the user is logged out (Signup/Login appears, Logout does not) */
   async expectLoggedOut(): Promise<void> {
     await this.expectVisible(this.signupLoginLink);
     await expect(this.logoutLink).toHaveCount(0);
@@ -59,23 +59,23 @@ export class HomePage extends BasePage {
     await this.click(this.contactLink);
   }
 
-  /** 删除当前登录账户。 */
+  /** Delete the currently logged-in account. */
   async deleteAccount(): Promise<void> {
     await this.click(this.deleteAccountLink);
   }
 
-  /** 将页脚滚动到可视区域。 */
+  /** Scroll the footer into view. */
   async scrollToFooter(): Promise<void> {
     await this.footer.scrollIntoViewIfNeeded();
   }
 
-  /** 点击站点回顶箭头并确认首页主标题进入视口。 */
+  /** Click the site scroll-up arrow and confirm that the main home heading is in view. */
   async scrollToTopWithArrow(): Promise<void> {
     await this.click(this.scrollUpButton);
     await expect(this.heroHeading).toBeInViewport();
   }
 
-  /** 使用键盘 Home 键回到页面顶部。 */
+  /** Use the keyboard Home key to return to the top of the page. */
   async scrollToTopWithoutArrow(): Promise<void> {
     await this.page.keyboard.press('Home');
     await expect(this.heroHeading).toBeInViewport();

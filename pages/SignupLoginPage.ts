@@ -1,13 +1,13 @@
 /**
- * 注册 / 登录页（pages/SignupLoginPage.ts）
- * 站点 /signup 与 /login 是同一页面（同时承载两个表单）。
+ * Signup / login page (pages/SignupLoginPage.ts)
+ * The site uses a single page for `/signup` and `/login`, which carries both forms at the same time.
  */
 import { Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 import { env } from '../config/env';
 
 export class SignupLoginPage extends BasePage {
-  // 登录表单（data-qa 已核实）
+  // Login form (data-qa verified)
   readonly loginEmail: Locator = this.page.locator('[data-qa="login-email"]');
   readonly invalidLoginEmail: Locator = this.page.locator('[data-qa="login-email"]:invalid');
   readonly loginPassword: Locator = this.page.locator('[data-qa="login-password"]');
@@ -15,7 +15,7 @@ export class SignupLoginPage extends BasePage {
   readonly loginError: Locator = this.page.getByText('Your email or password is incorrect!');
   readonly logoutLink: Locator = this.page.locator('a[href="/logout"]');
 
-  // 注册表单（第一步：姓名 + 邮箱）
+  // Registration form (first step: name + email)
   readonly signupName: Locator = this.page.locator('[data-qa="signup-name"]');
   readonly signupEmail: Locator = this.page.locator('[data-qa="signup-email"]');
   readonly signupButton: Locator = this.page.locator('[data-qa="signup-button"]');
@@ -24,7 +24,7 @@ export class SignupLoginPage extends BasePage {
     { exact: true },
   );
 
-  /** 打开登录页；登出后若已在 /login，则直接等待表单而不重复导航。 */
+  /** Open the login page; if already on `/login` after logout, wait for the form instead of navigating again. */
   async goto(): Promise<void> {
     const pathname = new URL(this.page.url()).pathname.replace(/\/+$/, '');
     if (pathname !== '/login') {
@@ -41,7 +41,7 @@ export class SignupLoginPage extends BasePage {
     });
   }
 
-  /** 填写姓名和邮箱并提交，等待站点返回创建表单或重复邮箱结果。 */
+  /** Fill in name and email and submit, then wait for either the account-creation form or the duplicate-email result. */
   async startSignup(name: string, email: string): Promise<'new-user' | 'existing-email'> {
     await this.fill(this.signupName, name);
     await this.fill(this.signupEmail, email);
@@ -57,7 +57,7 @@ export class SignupLoginPage extends BasePage {
     ]);
   }
 
-  /** 提交登录并返回结果，供成功和负向场景分别断言。 */
+  /** Submit the login and return the result so success and negative scenarios can assert separately. */
   async login(email: string, password: string): Promise<'success' | 'failure' | 'validation'> {
     await this.fill(this.loginEmail, email);
     await this.fill(this.loginPassword, password);

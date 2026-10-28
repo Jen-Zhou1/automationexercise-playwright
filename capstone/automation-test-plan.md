@@ -70,7 +70,7 @@ This document consolidates the English test scenarios, their execution steps, co
 
 ## Test Case 7: Verify Test Cases Page
 
-**Automation coverage:** Skipped by policy — [00-tc7-test-cases-page-skipped.spec.ts](../tests/00-tc7-test-cases-page-skipped.spec.ts) is permanently marked skipped and does not run.
+**Automation coverage:** Skipped by policy — TC7 only navigates to the site's Test Cases listing page. It does not verify customer-facing business behavior, so it is intentionally not automated.
 
 1. Open the application and confirm the home page loads.
 2. Select Test Cases from the navigation.
@@ -280,23 +280,23 @@ This document consolidates the English test scenarios, their execution steps, co
 
 - **Covered** means the project has a test that verifies the principal behavior in the official scenario.
 - **Partial** means the flow exists but one or more required steps are not yet verified.
-- **Skipped by policy** means the test is deliberately excluded from every run. TC7 uses Playwright's static `test.skip` declaration.
+- **Not covered** means no automated test currently verifies the official scenario.
+- **Skipped by policy** means the scenario is intentionally excluded because TC7 only opens the site's Test Cases listing page rather than verifying customer-facing behavior.
 - Related official scenarios may share one automated test file or be combined to avoid repeating setup.
 - Accessibility scans and visual regression are additional framework practices, not among these 26 functional scenarios.
 - The registration-to-cart smoke journey in [08-register-search-cart-smoke.spec.ts](../tests/08-register-search-cart-smoke.spec.ts) checks integration across account access, search, cart, and logout. It intentionally stops before checkout because dedicated regression cases cover order placement and payment.
-- Test titles carry grep-friendly tags: 08 is `@smoke`; 07 is `@smoke @regression`; all other functional tests are `@regression`. Visual tests in 09 are excluded from both tag groups and run separately with `npm run test:visual`. The current Chrome discovery finds 4 smoke tests and 22 regression tests (including the statically skipped TC7). Use `npm run test:smoke` or `npm run test:regression`.
+- Test titles carry grep-friendly tags: 08 is `@smoke`; 07 is `@smoke @regression`; all other functional tests are `@regression`. Visual tests in 09 are excluded from both tag groups and run separately with `npm run test:visual`. Use `npm run test:smoke` or `npm run test:regression`.
 
 ## Test Plan
 
 ### Execution policy
 
 - Run functional scenarios TC1–6 and TC8–26, subject to the test groups below.
-- **Never execute TC7.** Its Playwright test is statically skipped, so normal, focused, and tagged runs all report it as skipped rather than opening the Test Cases page.
 - A detected shared-site `queue full` response is a test failure, not a skip or a reason to omit the run.
 - Do not add anonymous/authenticated duplicates by default. Add both states only where authentication changes the behavior or the business requirement explicitly calls for both.
 - Keep visual regression as a separate Chromium-only suite. Run broad axe coverage through the dedicated accessibility suite rather than coupling scans to every business journey.
 - Use `npm run test:smoke` or `npm run test:regression` to filter functional tests by the tags in their titles. Smoke contains 08 plus the overlapping 07 suite; regression includes all functional tests except the smoke-only 08 suite. Run the separate Chromium visual suite with `npm run test:visual`.
-- Run standalone accessibility coverage with `npm run test:a11y`. It runs only in Desktop Chrome, one worker at a time. It records axe results for the homepage, recommended products, catalog, category, brand, product details, login, contact form, cart, checkout, payment, and order confirmation. Each scan flow writes one aggregated JSON report to `reports/accessibility/`; violations are recorded and logged without failing business-flow tests against the shared public demo site. Functional regression tests do not repeat these scans.
+- Run standalone accessibility coverage with `npm run test:a11y`. It runs only in Desktop Chrome, one worker at a time. It records axe results for the homepage, recommended products, catalog, category, brand, product details, login, contact form, cart, checkout, payment, and order confirmation. All historical runs and scan flows are retained in `reports/accessibility/accessibility-report.json`; repeated findings are grouped by axe rule and target while per-scan details remain available. Use `npm run report:a11y` to list history, add `-- --latest` to print the full latest run, or pass a run ID to inspect a past run. Violations are recorded and logged without failing business-flow tests against the shared public demo site. Functional regression tests do not repeat these scans.
 
 ### Regression groups
 
@@ -310,7 +310,7 @@ This document consolidates the English test scenarios, their execution steps, co
 | Site-wide footer and scroll behavior | TC10–11, TC25–26 | Home/cart subscription plus scroll-to-top with and without the arrow; [05-site-scroll-subscribe.spec.ts](../tests/05-site-scroll-subscribe.spec.ts). |
 | Checkout E2E journeys | TC14–16, TC23–24 | Three independent user paths: registered before shopping, guest registers at checkout, and existing user signs in before checkout; each runs as an independent test in [06-checkout-e2e.spec.ts](../tests/06-checkout-e2e.spec.ts). TC15/23 additionally validate registered address details; TC15 and TC24 verify invoice content. |
 | Visual regression | Additional framework coverage | Run the visual suite only in Chromium. Baseline screenshots cover the homepage, product catalog, product detail, login, contact form, cart, checkout, payment, and order confirmation; the authenticated order screens use a test account, while dynamic account details are masked. See [09-visual-compare.spec.ts](../tests/09-visual-compare.spec.ts). Keep visual checks separate from the official functional-case count. |
-| Accessibility scanning | Additional framework coverage | The dedicated axe suite in [10-accessibility.spec.ts](../tests/10-accessibility.spec.ts) runs only in Desktop Chrome and scans key storefront and account/order states, including category and brand results. Each test writes one aggregated report to `reports/accessibility/`; violations are recorded and logged without failing the test run. |
+| Accessibility scanning | Additional framework coverage | The dedicated axe suite in [10-accessibility.spec.ts](../tests/10-accessibility.spec.ts) runs only in Desktop Chrome and scans key storefront and account/order states, including category and brand results. Each run writes one consolidated report to `reports/accessibility/accessibility-report.json`; violations are recorded and logged without failing the test run. |
 
 ### Browser rollout
 

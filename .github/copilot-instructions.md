@@ -1,34 +1,34 @@
-# GitHub Copilot 编码约定（本项目）
+# GitHub Copilot Coding Conventions (This Project)
 
-> 本文件供 GitHub Copilot / AI 助手参考，生成与本项目风格一致的代码。
+> This file is for GitHub Copilot / AI assistants as a reference to generate code consistent with this project's style.
 
-## 硬性规则
+## Mandatory Rules
 
-1. **定位策略优先级**：`[data-qa="..."]` > `#id` > 语义 class > 文本。
-   - 禁止使用长 XPath、依赖层级结构的 CSS（如 `div > div > span:nth-child(2)`）。
-   - 禁止用 `:nth-child()` 选列表项；用 `filter({ hasText })` 或 data 属性。
-2. **禁止固定 sleep**。用 Playwright 自动等待：`expect(locator).toBeVisible()`、
-   `locator.click()`（自带可点击等待）、`page.waitForURL()`。
-  唯一例外：等待第三方轮播/动画的视觉场景，且必须注释原因。
-3. **页面元素与操作只进 `pages/`**，测试文件（`tests/`）只写"编排 + 断言"，
-  不允许在测试里直接堆 locator。
-4. **测试数据只进 `testdata/`**；动态数据（唯一邮箱等）用 `utils/data-generator.ts`。
-   环境相关值只进 `config/env.ts`，读取 `process.env.AE_*`。
-5. **测试必须 import `test/expect` from `../fixtures/base-fixtures`**，
-   不要直接从 `@playwright/test` 导入。
-6. **断言用 web-first assertions**（`await expect(locator).to...`），
-   禁止 `expect(await locator.isVisible()).toBe(true)` 这类手动判断。
-7. **失败证据**：全局已在 `playwright.config.ts` 配置
-   `screenshot: only-on-failure` / `video: retain-on-failure` / `trace: retain-on-failure`，
-   不要在用例里重复配置。
-8. **新增页面**要继承 `BasePage`，并把可复用操作写成方法，方法名用业务动词
-   （`startSignup`、`proceedToCheckout`、`pay`）。
-9. **视觉回归**只允许在 `chrome` 项目跑，用 `testInfo.project.name !== env.visualProject` 跳过。
-10. **无障碍检查**使用 `reportAccessibilityScan` 记录结果，不阻断公开演示站的业务流程；
-    接客户项目时应先建立基线，再按评审后的严重级别门禁。
+1. **Selector priority**: `[data-qa="..."]` > `#id` > semantic class > text.
+   - Do not use long XPath or CSS selectors that depend on element hierarchy (for example, `div > div > span:nth-child(2)`).
+   - Do not use `:nth-child()` to select list items; use `filter({ hasText })` or data attributes instead.
+2. **Do not use fixed sleep**. Use Playwright's automatic waiting: `expect(locator).toBeVisible()`,
+   `locator.click()` (includes built-in clickability waiting), and `page.waitForURL()`.
+   The only exception is waiting for third-party carousel/animation visual behavior, and the reason must be commented.
+3. **Page elements and actions belong only in `pages/`**; test files (`tests/`) should contain only orchestration and assertions,
+   and should not directly pile up locators inside tests.
+4. **Test data belongs only in `testdata/`**; dynamic data (unique email, etc.) should use `utils/data-generator.ts`.
+   Environment-specific values belong only in `config/env.ts` and should be read from `process.env.AE_*`.
+5. **Tests must import `test/expect` from `../fixtures/base-fixtures`**;
+   do not import directly from `@playwright/test`.
+6. **Use web-first assertions** (`await expect(locator).to...`);
+   do not use manual checks such as `expect(await locator.isVisible()).toBe(true)`.
+7. **Failure evidence**: the global config in `playwright.config.ts` already sets
+   `screenshot: only-on-failure` / `video: retain-on-failure` / `trace: retain-on-failure`;
+   do not repeat these in individual test cases.
+8. **New pages** should inherit from `BasePage`, and reusable operations should be written as methods with business-verb names
+   (`startSignup`, `proceedToCheckout`, `pay`).
+9. **Visual regression** may run only in the `chrome` and `mobile-chrome` projects; skip unsupported projects using the allowlist in `env.visualProjects`.
+10. **Accessibility checks** should use `reportAccessibilityScan` to record results without blocking the business flow of the public demo site;
+    when working with client projects, establish a baseline first, then enforce gating based on the reviewed severity levels.
 
-## 代码风格
+## Code Style
 
-- 文件头用块注释说明：这个页面/工具是什么、已核实的结构依据。
-- 公开方法写 JSDoc（含参数含义与站点特殊行为提示）。
-- console 输出用 `utils/logger.ts` 的 `log.step/info/pass/warn`，不要裸 `console.log`。
+- Add a block comment at the top of the file explaining what this page/tool is and the verified structural basis.
+- Write JSDoc for public methods (including parameter meanings and site-specific behavior notes).
+- Use `utils/logger.ts`'s `log.step/info/pass/warn` for console output instead of raw `console.log`.

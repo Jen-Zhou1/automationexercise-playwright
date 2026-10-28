@@ -1,12 +1,12 @@
 /**
- * 购物车页（pages/CartPage.ts）
- * 已核实：
- *  - 有商品：#cart_info_table 内 tr#product-<id> 行；
- *    名称 .cart_description h4 a / 单价 .cart_price p / 小计 .cart_total .cart_total_price /
- *    数量 .cart_quantity button
- *  - 移除：.cart_quantity_delete[data-product-id]（AJAX，行由 JS 移除）
- *  - 去结算：#do_action a.check_out（"Proceed To Checkout"）
- *  - 空车：#empty_cart 显示
+ * Cart page (pages/CartPage.ts)
+ * Verified:
+ *  - Cart Items: rows `tr#product-<id>` inside `#cart_info_table`;
+ *    item name `.cart_description h4 a`, unit price `.cart_price p`, subtotal `.cart_total .cart_total_price`,
+ *    quantity `.cart_quantity button`
+ *  - Remove Item: `.cart_quantity_delete[data-product-id]` (AJAX; the row is removed by JS)
+ *  - Checkout: `#do_action a.check_out` ("Proceed To Checkout")
+ *  - Empty Cart: `#empty_cart` is shown
  */
 import { Locator, type Page } from '@playwright/test';
 import { BasePage } from './BasePage';
@@ -38,32 +38,32 @@ export class CartPage extends BasePage {
     await this.assertSiteAvailable();
   }
 
-  /** 购物车中的商品名列表 */
+  /** List of product names in the cart */
   async getItemNames(): Promise<string[]> {
     return this.productRows.locator('.cart_description h4 a').allInnerTexts();
   }
 
-  /** 返回指定商品的购物车行。 */
+  /** Return the cart row for a specified product. */
   productRow(productId: string): Locator {
     return this.page.locator(`#product-${productId}`);
   }
 
-  /** 某一行的小计元素，如 "Rs. 1000" */
+  /** The subtotal element for a row, such as "Rs. 1000" */
   lineTotal(productId: string): Locator {
     return this.page.locator(`#product-${productId} .cart_total_price`);
   }
 
-  /** 某一行显示数量的元素 */
+  /** The element that shows the quantity for a row */
   lineQuantity(productId: string): Locator {
     return this.page.locator(`#product-${productId} .cart_quantity button`);
   }
 
-  /** 返回指定商品的单价元素。 */
+  /** Return the unit-price element for the specified product. */
   linePrice(productId: string): Locator {
     return this.page.locator(`#product-${productId} .cart_price`);
   }
 
-  /** 移除商品（AJAX 删除，等待行消失） */
+  /** Remove an item (AJAX delete; wait for the row to disappear) */
   async removeItem(productId: string): Promise<void> {
     await this.click(this.page.locator(`.cart_quantity_delete[data-product-id="${productId}"]`));
   }
@@ -72,7 +72,7 @@ export class CartPage extends BasePage {
     await this.click(this.checkoutButton);
   }
 
-  /** 在访客结算弹窗中进入注册/登录页。 */
+  /** Open the registration/login page from the guest checkout modal. */
   async chooseRegisterOrLoginAtCheckout(): Promise<void> {
     await this.click(this.checkoutRegisterLoginLink);
   }

@@ -1,9 +1,9 @@
 /**
- * 联系我们页（pages/ContactPage.ts）
- * 已核实：字段 data-qa = name / email / subject / message；
- * 文件域 input[name="upload_file"]；提交 data-qa="submit-button"。
- * ⚠️ 关键行为：提交时弹出原生 confirm("Press OK to proceed!")，
- *    点确定后 JS 才显示 .alert-success 成功提示（见 README「站点特殊行为」）。
+ * Contact us page (pages/ContactPage.ts)
+ * Verified: fields `data-qa = name / email / subject / message`;
+ * File Input `input[name="upload_file"]`; submit button `data-qa="submit-button"`.
+ * ⚠️ Key behavior: submit triggers the native `confirm("Press OK to proceed!")`;
+ *    Only after accepting does JS show the `.alert-success` success message (see README "site-specific behavior").
  */
 import { Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
@@ -24,21 +24,20 @@ export class ContactPage extends BasePage {
   }
 
   /**
-   * 填写并提交。
-   * @param acceptConfirmDialog 是否自动点掉原生 confirm 弹窗（成功路径必须为 true）
+   * Fill the Contact Us form and submit.
+   * @param acceptConfirmDialog whether to automatically accept the native confirm dialog (must be true for the success path)
    */
   async submit(data: ContactSubmission, acceptConfirmDialog = false): Promise<void> {
-    // 只填有值的字段（空值用于验证"必填缺失"场景）
+    // Fill only the fields that have values (empty values are used to validate required-field scenarios)
     if (data.name) await this.fill(this.name, data.name);
     if (data.email) await this.fill(this.email, data.email);
     if (data.subject) await this.fill(this.subject, data.subject);
     if (data.message) await this.fill(this.message, data.message);
 
     if (acceptConfirmDialog) {
-      // 必须在点击 submit 之前注册，否则弹窗会挂起超时
+      // Must register before clicking submit; otherwise the dialog hangs until timeout
       this.page.once('dialog', (dialog) => dialog.accept());
     }
     await this.click(this.submitButton);
   }
-
 }

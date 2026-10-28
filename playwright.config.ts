@@ -3,6 +3,7 @@ import * as path from 'node:path';
 import { env } from './config/env';
 
 const runStamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_');
+process.env.AE_A11Y_REPORT_RUN_ID = runStamp;
 
 const runRoot = path.resolve(__dirname, 'reports', runStamp);
 const desktopOptions = {
@@ -47,8 +48,8 @@ export default defineConfig({
       name: 'chrome',
       use: { ...devices['Desktop Chrome'], ...desktopOptions },
     },
-    // Optional desktop browser/device projects stay disabled until the
-    // Desktop Chrome regression gate is stable. Uncomment one to enable it.
+    // The public demo site is prone to overload. Keep all other browser projects
+    // disabled by default; enable them only for an isolated or otherwise approved run.
     // {
     //   name: 'edge',
     //   use: { ...devices['Desktop Edge'], ...desktopOptions },
