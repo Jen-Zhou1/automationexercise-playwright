@@ -37,6 +37,7 @@ npx playwright test
 |---|---|
 | 当前启用浏览器的全量测试 | `npm test` |
 | Desktop Chrome / Pixel 7 移动 Chrome | `npx playwright test --project=chrome` / `npx playwright test --project=mobile-chrome` |
+| Smoke / 非 Smoke 回归测试 | `npm run test:smoke` / `npm run test:regression` |
 | 结算 E2E（单 worker） | `npm run test:checkout` |
 | 无障碍扫描（单 worker） | `npm run test:a11y` |
 | Playwright grep 筛选 | `npx playwright test --grep "@smoke"` / `npx playwright test --grep "@regression"` |
@@ -91,7 +92,8 @@ TC7 由静态 `test.skip` 声明，任何常规运行均不会执行该测试。
 08 是唯一的跨功能 smoke 测试；07 同时属于 smoke 与 regression；其余功能测试
 （包括永久跳过的 TC7）标记为 regression。视觉测试不属于功能标签组，使用
 `npm run test:visual` 独立运行。当前 `@smoke` 发现 4 项（3 个联系表单、
-1 个跨功能 smoke），`@regression` 发现 22 项（TC7 计为 skipped）。
+1 个跨功能 smoke）；`npm run test:regression` 排除同时带 `@smoke` 标签的 07，
+发现 19 项（TC7 计为 skipped），避免 smoke 与 regression 工作流重复运行联系表单用例。
 08 覆盖的注册、搜索加购和登出功能也在专门的认证/搜索回归测试中验证，但这些测试
 只标记为 regression，因此不会与 08 一起被 smoke 命令重复执行。
 详细英文步骤、状态及映射以测试计划为准。

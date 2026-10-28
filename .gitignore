@@ -1,9 +1,14 @@
+# Dependencies and build output
 node_modules/
 dist/
-reports/          # 每次运行的报告+产物（按时间戳隔离），不入库
+
+# Per-run reports and test artifacts
+reports/
 playwright-report/
 test-results/
 .cache/
 *.log
 .env
-*.pdf            # 测试下载的发票等
+
+# Downloaded invoices
+*.pdf

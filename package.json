@@ -7,7 +7,7 @@
     "test:headed": "playwright test --headed",
     "test:chrome": "playwright test --project=chrome",
     "test:smoke": "playwright test --project=chrome --grep \"@smoke\"",
-    "test:regression": "playwright test --project=chrome --grep \"@regression\"",
+    "test:regression": "playwright test --project=chrome --grep \"@regression\" --grep-invert \"@smoke\"",
     "test:checkout": "playwright test --workers=1 tests/06-checkout-e2e.spec.ts",
     "test:a11y": "playwright test --project=chrome --workers=1 --grep \"@a11y\"",
     "test:visual": "playwright test --project=chrome -g \"视觉回归\"",
