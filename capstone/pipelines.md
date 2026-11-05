@@ -9,7 +9,6 @@ Create a workflow named `Run Playwright Tests` that runs on:
 1. Every pull request targeting the `main` branch.
 2. Every push to the `main` branch.
 3. Manual trigger from the GitHub Actions page (`workflow_dispatch`).
-4. A scheduled nightly run for all suites, in sequence.
 
 The workflow uses Node.js 22, `npm ci`, caches npm packages and Playwright browsers, and uploads the timestamped reports and failure evidence from `reports/**`.
 
