@@ -20,9 +20,6 @@ on:
           - visual
           - all
         default: regression
-  schedule:
-    - cron: '0 3 * * *'
-
 concurrency:
   group: automationexercise-public-demo
   cancel-in-progress: false
@@ -61,19 +58,19 @@ jobs:
         run: npx playwright install chromium
 
       - name: Run smoke tests
-        if: github.event_name == 'pull_request' || github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'smoke' || inputs.suite == 'all'))
+        if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'smoke' || inputs.suite == 'all'))
         run: npm run test:smoke
 
       - name: Run regression tests
-        if: github.event_name == 'push' || github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'regression' || inputs.suite == 'all'))
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'regression' || inputs.suite == 'all'))
         run: npm run test:regression
 
       - name: Run accessibility tests
-        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'accessibility' || inputs.suite == 'all'))
+        if: github.event_name == 'workflow_dispatch' && (inputs.suite == 'accessibility' || inputs.suite == 'all')
         run: npm run test:a11y
 
       - name: Run visual regression tests
-        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'visual' || inputs.suite == 'all'))
+        if: github.event_name == 'workflow_dispatch' && (inputs.suite == 'visual' || inputs.suite == 'all')
         run: npm run test:visual
 
       - name: Upload Playwright reports

@@ -6,7 +6,7 @@ This repository tests the public Automation Exercise storefront, which can retur
 
 Create a workflow named `Run Playwright Tests` that runs on:
 
-1. Every pull request targeting the `main` branch.
+1. Every pull request to the `main` branch.
 2. Every push to the `main` branch.
 3. Manual trigger from the GitHub Actions page (`workflow_dispatch`).
 
