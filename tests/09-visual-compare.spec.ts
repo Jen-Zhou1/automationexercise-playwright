@@ -33,7 +33,7 @@ const isVisualProject = (projectName: string): boolean =>
 test.describe('Visual Test (Desktop and Mobile Chromium)', () => {
   test.describe.configure({ retries: 1 });
 
-  test('Visual Compare: anonymous Home, Product Catalog, PDP', async ({ page }, testInfo) => {
+  test('Visual Compare: anonymous Home, Product Catalog, PDP @visual', async ({ page }, testInfo) => {
     test.skip(
       !isVisualProject(testInfo.project.name),
       `Visual tests run only in these projects: ${env.visualProjects.join(', ')}`,
@@ -61,7 +61,7 @@ test.describe('Visual Test (Desktop and Mobile Chromium)', () => {
     log.pass('Home, Catalog, and PDP visual comparisons passed');
   });
 
-  test('Visual Test: Login, Contact Us Form, Cart', async ({ page }, testInfo) => {
+  test('Visual Test: Login, Contact Us Form, Cart @visual', async ({ page }, testInfo) => {
     test.skip(
       !isVisualProject(testInfo.project.name),
       `Visual tests run only in these projects: ${env.visualProjects.join(', ')}`,
@@ -88,7 +88,7 @@ test.describe('Visual Test (Desktop and Mobile Chromium)', () => {
     log.pass('Login page, Contact form, and Cart visual comparisons passed');
   });
 
-  test('Visual Test: Signed-in Checkout, Payment, Order Confirmation', async ({ authedUser }, testInfo) => {
+  test('Visual Test: Signed-in Checkout, Payment, Order Confirmation @visual', async ({ authedUser }, testInfo) => {
     test.skip(
       !isVisualProject(testInfo.project.name),
       `Visual tests run only in these projects: ${env.visualProjects.join(', ')}`,
