@@ -6,7 +6,7 @@ const runStamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_'
 process.env.AE_A11Y_REPORT_RUN_ID = runStamp;
 
 const runRoot = path.resolve(__dirname, 'reports', runStamp);
-const desktopOptions = {
+const sharedOptions = {
   baseURL: env.baseUrl,
   navigationTimeout: env.timeouts.navigation,
   actionTimeout: env.timeouts.action,
@@ -46,29 +46,31 @@ export default defineConfig({
   projects: [
     {
       name: 'chrome',
-      use: { ...devices['Desktop Chrome'], ...desktopOptions },
+      // Desktop Chrome preset: 1280x720 CSS-pixel viewport.
+          use: { ...devices['Desktop Chrome'], ...sharedOptions },
     },
     // The public demo site is prone to overload. Keep all other browser projects
     // disabled by default; enable them only for an isolated or otherwise approved run.
     // {
     //   name: 'edge',
-    //   use: { ...devices['Desktop Edge'], ...desktopOptions },
+    //   use: { ...devices['Desktop Edge'], ...sharedOptions },
     // },
     // {
     //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'], ...desktopOptions },
+    //   use: { ...devices['Desktop Firefox'], ...sharedOptions },
     // },
     // {
     //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'], ...desktopOptions },
+    //   use: { ...devices['Desktop Safari'], ...sharedOptions },
     // },
     {
       name: 'mobile-chrome',
-      use: { ...devices['Pixel 7'], ...desktopOptions },
+      // Pixel 7 preset: 412x839 CSS-pixel viewport (412x915 screen, DPR 2.625).
+      use: { ...devices['Pixel 7'], ...sharedOptions },
     },
     // {
     //   name: 'mobile-safari',
-    //   use: { ...devices['iPhone 13'], ...desktopOptions },
+    //   use: { ...devices['iPhone 13'], ...sharedOptions },
     // },
   ],
 });

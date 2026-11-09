@@ -37,9 +37,7 @@ Common commands:
 |---|---|
 | Full test run for enabled browsers | `npm test` |
 | Desktop Chrome / Pixel 7 mobile Chrome | `npx playwright test --project=chrome` / `npx playwright test --project=mobile-chrome` |
-| Smoke / non-smoke regression tests | `npm run test:smoke` / `npm run test:regression` |
-| Mobile Chrome regression + visual comparisons | `npm run test:regression:mobile` |
-| Mobile Safari regression (isolated, single worker) | `npm run test:regression:mobile-safari` |
+| Smoke / non-smoke regression tests | `npm run test:smoke` / `npm run test:regression` ||
 | Checkout E2E (single worker) | `npm run test:checkout` |
 | Accessibility scan (single worker) | `npm run test:a11y` |
 | Visual compare / update baselines (Desktop and Mobile Chrome only) | `npm run test:visual` / `npm run test:visual:update` |
@@ -49,12 +47,13 @@ Common commands:
 | Type check | `npm run typecheck` |
 | UI / debug mode | `npm run test:ui` / `npm run test:debug` |
 
-Accessibility scans run only on Desktop Chrome; `npm run test:a11y` is fixed to `--project=chrome`.
-If the full matrix is run, accessibility tests are skipped on other projects. Visual comparisons run on
-Desktop Chrome and Pixel 7 mobile Chrome, with separate baselines for each project. Tablet is intentionally
-not a separate visual-test viewport: its layout is sufficiently close to Desktop for this project, while Mobile
-covers the materially different responsive layout. Add a Tablet baseline only if tablet-specific behavior or
-an uncovered responsive breakpoint becomes a concrete requirement.
+The configured viewport presets are Desktop Chrome at 1280×720 CSS pixels and Pixel 7 mobile Chrome at
+412×839 CSS pixels (screen 412×915, device scale factor 2.625). Visual comparisons use these project viewports
+and keep separate baselines for each. Tablet is intentionally not a separate visual-test viewport: its layout is
+sufficiently close to Desktop for this project, while Mobile covers the materially different responsive layout.
+Add a Tablet baseline only if tablet-specific behavior or an uncovered responsive breakpoint becomes a concrete
+requirement. Accessibility scans run only on Desktop Chrome; `npm run test:a11y` is fixed to `--project=chrome`.
+If the full matrix is run, accessibility tests are skipped on other projects.
 
 The public demo site throttles heavy traffic. By default, only Desktop Chrome and Pixel 7 mobile Chrome are enabled;
 all other browser projects remain commented out in `playwright.config.ts`. Mobile Safari has a separate
