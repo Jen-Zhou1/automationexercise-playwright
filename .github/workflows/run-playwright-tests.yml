@@ -3,10 +3,10 @@ name: Run Playwright Tests
 on:
   pull_request:
     branches:
-      - main
+      - draft
   push:
     branches:
-      - main
+      - draft
   workflow_dispatch:
     inputs:
       suite:
