@@ -2,16 +2,16 @@
  * Test data generator (utils/data-generator.ts)
  * ---------------------------------------------------------------------------
  * Why it exists: the site is a shared demo site and account data persists.
- * Each run generates a "unique email + random name" to avoid "Email Address already exist!" conflicts
- * Ensure that any parallel or repeated execution remains isolated and deterministic.
+ * Each run generates a unique email and short stable display name; profile names
+ * stay randomized. This keeps authenticated headers deterministic without reusing accounts.
  */
 import { randomUUID } from 'node:crypto';
 import { env } from '../config/env';
 import { ADDRESS } from '../testdata/address';
 import type { TestUser } from '../testdata/users';
 
-const FIRST_NAMES = ['Wei', 'Yun', 'Auto', 'Qa', 'Lena', 'Marco', 'Sara', 'Kenji'];
-const LAST_NAMES = ['Zhang', 'Wang', 'Tester', 'Engineer', 'Nguyen', 'Silva'];
+const FIRST_NAMES = ['Wei', 'Kun', 'Auto', 'QA', 'Lena', 'Marco', 'Sara', 'Kenji'];
+const LAST_NAMES = ['Zhao', 'Wang', 'Test', 'Engineer', 'Nguyen', 'Silva'];
 
 function pick<T>(list: readonly T[]): T {
   const index = Math.floor(Math.random() * list.length);
@@ -32,7 +32,7 @@ export function generateUser(overrides: Partial<TestUser> = {}): TestUser {
   const firstName = pick(FIRST_NAMES);
   const lastName = pick(LAST_NAMES);
   return {
-    name: `${firstName} ${lastName}`,
+    name: 'QA',
     email: uniqueEmail(),
     password: env.testUserPassword,
     title: 'Mr',

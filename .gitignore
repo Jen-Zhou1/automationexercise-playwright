@@ -11,4 +11,7 @@ test-results/
 .env
 
 # Downloaded invoices
+# Playwright writes invoices to reports/<timestamp>/artifacts/ via outputPath, already ignored with reports/;
+# this only catches temporary files created in the repository root during manual runs.
+invoice-*.txt
 *.pdf

@@ -4,7 +4,7 @@
  * Order Note `#ordermsg textarea[name=message]`;
  * Place Order → `a.check_out[href="/payment"]`.
  */
-import { Locator } from '@playwright/test';
+import { Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 import type { TestUser } from '../testdata/users';
 
@@ -39,10 +39,10 @@ export class CheckoutPage extends BasePage {
       user.mobile,
     ];
 
+    const expectedAddress = expectedLines.join(' ');
+
     for (const address of [this.deliveryAddress, this.invoiceAddress]) {
-      for (const line of expectedLines) {
-        await this.expectText(address, line);
-      }
+      await expect(address).toContainText(expectedAddress);
     }
   }
 

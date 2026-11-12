@@ -6,28 +6,34 @@
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:chrome": "playwright test --project=chrome",
+    "test:mobile": "playwright test --project=mobile-chrome",
     "test:smoke": "playwright test --project=chrome --grep \"@smoke\"",
+    "test:gate": "npm run test:smoke && npm run test:regression",
     "test:regression": "playwright test --project=chrome --grep \"@regression\" --grep-invert \"@smoke\"",
-    "test:regression:mobile": "playwright test --project=mobile-chrome --grep \"(?:@regression|Visual regression)\" --grep-invert \"@smoke\"",
-    "test:regression:mobile-safari": "playwright test --config=playwright.mobile-safari.config.ts --grep \"@regression\" --grep-invert \"@smoke\"",
-    "test:checkout": "playwright test --workers=1 tests/06-checkout-e2e.spec.ts",
-    "test:a11y": "playwright test --project=chrome --workers=1 --grep \"@a11y\"",
-    "test:visual": "playwright test --project=chrome --project=mobile-chrome -g \"Visual regression\"",
-    "test:visual:update": "playwright test --project=chrome --project=mobile-chrome -g \"Visual regression\" --update-snapshots",
+    "test:regression:mobile": "playwright test --project=mobile-chrome --grep \"@regression\" --grep-invert \"@smoke\"",
+    "test:functional": "playwright test --grep \"@regression\" --grep-invert \"@smoke\"",
+    "test:checkout": "playwright test --project=chrome tests/04-checkout.spec.ts",
+    "test:a11y": "playwright test --project=chrome --grep \"@a11y\"",
+    "test:visual": "playwright test --project=chrome --project=mobile-chrome --project=tablet-chrome --grep \"@visual\"",
+    "test:visual:update": "playwright test --project=chrome --project=mobile-chrome --project=tablet-chrome --grep \"@visual\" --update-snapshots",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
     "typecheck": "tsc --noEmit",
     "report:a11y": "node scripts/show-accessibility-report.cjs",
     "report": "node scripts/show-latest-report.cjs",
+    "clean": "node scripts/clean-reports.cjs",
     "codegen": "playwright codegen https://automationexercise.com"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.10.0",
-    "@playwright/test": "^1.48.0",
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.64.1",
     "@types/node": "^22.10.0",
     "typescript": "^5.6.0"
   },
   "dependencies": {
     "dotenv": "^18.0.8"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

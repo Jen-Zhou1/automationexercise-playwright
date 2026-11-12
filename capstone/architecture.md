@@ -1,46 +1,162 @@
 # Architecture Overview
 
-## Purpose and boundaries
+> One diagram, then the rules behind it. Mermaid renders natively on GitHub, in VS Code (Mermaid extension), Typora and most Markdown viewers.
 
-This repository is a Playwright + TypeScript end-to-end test framework for the public Automation Exercise storefront. It verifies customer-facing journeys; TC7, which only opens the site's Test Cases listing page, is intentionally excluded.
+This repository is a Playwright + TypeScript end-to-end framework for the public Automation Exercise storefront. It
+verifies customer-facing journeys only (TC7, which merely opens the site's own Test Cases listing page, is excluded).
+Four layers, Page Object Model, composable fixtures, centralised config/data — and Playwright's own reporting.
 
-The framework is organized around Page Object Model (POM), reusable fixtures, centralized configuration and test data, and Playwright's built-in reporting and failure artifacts.
+## 1. The framework in one picture
 
-## Main components
+```mermaid
+flowchart LR
+    Q["npm run test:smoke · regression<br/>visual · a11y<br/>the tag decides what runs"]
 
-| Component | Responsibility |
-|---|---|
-| `tests/` | Orchestrate business scenarios, combine page-object actions, and make test assertions. |
-| `pages/` | Encapsulate page locators and user-facing operations. Page classes extend `BasePage` where shared behavior is needed. |
-| `fixtures/base-fixtures.ts` | Export the project's `test` and `expect`; configure shared page behavior, third-party request blocking, and registered/authenticated test-user fixtures. |
-| `config/env.ts` | Read environment-specific values from `AE_*`, validate timeouts, and declare which browser projects run accessibility and visual tests. |
-| `testdata/` | Hold reusable product, checkout, contact-form, and user data. Unique user data is produced by `utils/data-generator.ts`. |
-| `utils/` | Provide shared logging, network helpers, data generation, and axe scan/report functionality. |
-| `playwright.config.ts` | Define browser projects, timeouts, workers, retries, and per-run report/artifact locations. |
-| `docs/` | Describe the automation plan, architecture, and CI pipeline guidance. |
+    subgraph TESTS["tests/ — 8 files: orchestration and assertions only"]
+        direction TB
+        A["01–06<br/>business<br/>@regression"]
+        C["08 visual<br/>@visual"]
+        D["07 axe<br/>@a11y"]
+        A ~~~ C ~~~ D
+    end
 
-## Test execution and browser projects
+    FX["fixtures/<br/>base-fixtures.ts<br/>page · registeredUser<br/>authedUser · adBlocker"]
 
-Desktop Chrome (`chrome`) and Pixel 7 mobile Chrome (`mobile-chrome`) are enabled by default. Desktop Edge, Firefox, WebKit, and mobile Safari project definitions remain commented out because the shared public demo site can become overloaded. Enable additional projects only when needed and when the site's capacity is appropriate.
+    subgraph PAGES["pages/ — one class per page, zero assertions"]
+        direction TB
+        PO["page objects<br/>Home · Products · Cart<br/>Checkout · Payment · Contact"]
+        BP["BasePage<br/>click · fill · pressKey<br/>selectOption · scrollTo<br/>queue-full fast fail"]
+    end
 
-Tests use Playwright's automatic waiting and web-first assertions; fixed sleeps are avoided. Tests import `test` and `expect` from `fixtures/base-fixtures.ts`. Page locators and reusable interactions belong in page objects, while test files focus on scenario orchestration and assertions.
+    subgraph SUP["support — helpers with no business knowledge"]
+        direction TB
+        S1["utils/network.ts<br/>block · spy · mock"]
+        S2["utils/carousel.ts<br/>helpers/stabilize.ts<br/>freeze · wait · settle"]
+        S3["utils/a11y.ts<br/>axe scans<br/>one aggregate"]
+    end
 
-The configuration sets `fullyParallel: false`, one worker locally, and two workers when `CI` is set. The shared demo site's queue-full response is treated as a test failure and reported explicitly. Keep browser runs serialized when exercising the public site; concurrency should be increased only when using an isolated environment that can support it.
+    subgraph FOUND["foundation — the only layer that reads process.env"]
+        direction TB
+        E["config/env.ts<br/>timeouts · projects · gate"]
+        P["playwright.config.ts<br/>3 projects · reporters"]
+        TD["testdata/<br/>products · checkout"]
+    end
 
-## Browser-specific checks
+    SITE["automationexercise.com"]
+    OUT["reports/&lt;runStamp&gt;/<br/>report · results.json<br/>artifacts on failure"]
 
-- Accessibility scans in `tests/10-accessibility.spec.ts` run only in Desktop Chrome. Scan results are consolidated in `reports/accessibility/accessibility-report.json`; repeated findings are grouped while page-level scan details and historical runs are retained.
-- Visual regression runs only in Desktop Chrome and mobile Chrome, with project-specific screenshot baselines.
-- Other functional tests run in each enabled project unless their test code or project configuration says otherwise.
+    Q --> TESTS
+    TESTS --> FX
+    FX --> PO
+    PO --> BP
+    PO --> S1
+    PO --> TD
+    C --> S2
+    D --> S3
+    BP --> E
+    S1 --> E
+    S3 --> E
+    E --> P
+    BP --> SITE
+    P --> OUT
+```
 
-## Reporting and diagnostics
+**How to read it.** Arrows point in the dependency direction, left to right, and nothing ever points back upstream.
+That single constraint is what makes the suite maintainable, and each layer has exactly one rule:
 
-Each Playwright invocation writes an HTML report, JSON results, and test artifacts under a timestamped `reports/<timestamp>/` directory. Screenshots are captured only on failure; video and Trace are retained on failure. Open the latest HTML report with `npm run report`, or open a specific run with `npx playwright show-report reports\\<timestamp>\\report`.
+| Layer | Rule | What breaks without it |
+|---|---|---|
+| `tests/` | Orchestrate and assert; no locators | One UI change becomes an eight-file edit |
+| `pages/` | One class per page, business verbs, no test-intent assertions | Flows cannot be reused by the functional, visual and a11y suites alike |
+| `utils/` + `helpers/` | Pure helpers, no business knowledge | Waiting/retry logic gets copied into every test |
+| `config/` + `testdata/` | Only place that reads `process.env` | Tests become machine-dependent and stop reproducing anywhere else |
 
-The standalone axe report has a separate history file at `reports/accessibility/accessibility-report.json`. Use `npm run report:a11y` to list runs, `npm run report:a11y -- --latest` to print the newest complete run, or pass a run ID to inspect a historical run.
+Every user action goes through `BasePage` (`click`, `fill`, `check`, `selectOption`, `pressKey`, `scrollTo`,
+`setInputFiles`, `clickAndWaitForDownload`), because those wrappers carry the queue-full check: on an overloaded site a
+test reports "the site is queuing requests" instead of "element not found".
 
-## Architectural references
+## 2. Suites and viewports
 
-- [Automation test plan](./automation-test-plan.md) maps official scenarios to coverage and defines execution policy.
-- [Pipeline guidance](./pipelines.md) describes suite selection and report artifact expectations for CI.
-- [README](../README.md) contains setup, commands, and repository conventions.
+| Command | Chrome | What it proves |
+|---|---:|---|
+| `npm run test:smoke` | 2 | Register → search → add to cart → logout → delete, plus one real form submission (≤ 3 min) |
+| `npm run test:regression` | 19 | Everything functional, negative branches included; the 2 smoke tests are excluded by `--grep-invert` |
+| `npm run test:gate` | 2 + 19 | Smoke first, then regression — the pre-push order |
+| `npm run test:visual` | 3 × 3 viewports | Full-page pixel comparisons, one baseline set per viewport (30 files) |
+| `npm run test:a11y` | 3 | axe scans with a severity gate |
+
+| Project | Viewport | Site band | Runs |
+|---|---|---|---|
+| `chrome` | 1280 × 720 | `lg` (≥ 1200) | functional, visual, axe |
+| `tablet-chrome` | 800 × 1280 | `sm` (768–991) | **visual only** — project-level `grep: /@visual/` |
+| `mobile-chrome` | 412 × 839 (Pixel 7, DPR 2.625) | `xs` (< 768) | functional, visual |
+
+Three points a reviewer will ask about:
+
+- **The tablet project costs nothing extra.** `grep` at project level means `--project=tablet-chrome --list` is 3 tests,
+  not 27. Scope is declared on the project, not sprinkled as `test.skip` through the specs.
+- **800, not 768.** 768 sits on the breakpoint; one vertical scrollbar eating ~15 px drops the layout into `xs` and the
+  baseline records the wrong band. 800 is safely inside `sm`.
+- **`md` (992–1199) is deliberately not baselined.** It differs from `lg` only by a 970 px container plus six `md`-only
+  alignment rules; the site has no `col-lg-*` and its only `col-md-*` usage also applies at 1280, so `md` can produce a
+  *misaligned* layout but not a different one. Documented rather than implied.
+
+Firefox / Edge / WebKit / iPhone 13 are present but commented out: the tagged functional suite (21) × 6 projects = 126
+serial runs against a shared public store, and the site throttles. Execution is serial by design
+(`workers: 1`, `fullyParallel: false`) — the site's rate limiting, plus `utils/a11y.ts` keeping its aggregate in module
+scope, where a second worker would silently write a partial report. `env.ts` names projects as strings, so the config
+validates them at load time and a rename fails fast instead of every visual/a11y test quietly skipping.
+
+## 3. Execution model
+
+`registeredUser` → `authedUser` is a two-level fixture chain: the fixture registers a unique account, asserts
+`Logged in as NAME`, hands `{ page, user }` to the test, then registers its cleanup **after** `use()`. Cleanup therefore
+runs even when the test body throws — that is what stops the shared demo site from accumulating orphaned accounts. The
+`page` fixture adds a post-test check for the site's queue-full page: if the run was otherwise green it throws with a
+clear reason, and if the test already failed it attaches the body text as an annotation so the original failure survives.
+
+## 4. Why the visual suite is stable
+
+The home hero and the recommended-items strip are Bootstrap 3 carousels on a 5-second JS timer, which
+`animations: 'disabled'` does not stop. Every capture is preceded by: freeze the carousels (remove `data-ride`, reset to
+slide 1, pause the interval) → wait for fonts and images → move the mouse away → settle 300 ms → `toHaveScreenshot`.
+
+Two consequences worth noting: freezing also fixes the add-to-cart race (the product id is read and clicked in the same
+resolution as the freeze), and screenshots are **full page**, so header, recommended items and footer subscription are
+inside the baseline. The threshold is a **ratio** of page area (1%, 2% on the narrower viewports) because page height
+varies with content while a ratio stays meaningful.
+
+## 5. Reporting
+
+One directory per invocation (`reports/<runStamp>/`), nothing from a previous run is overwritten: `report/index.html`,
+`results.json`, and `artifacts/` which only receives files on failure (`trace` / `screenshot` / `video` are all
+`*-on-failure`). Visual tests are the exception people trip over: `toHaveScreenshot` captures on **every** run because the
+capture *is* the comparison; only `-expected` / `-actual` / `-diff` are written, and only on a mismatch. Accessibility
+keeps its own never-overwritten `reports/a11y/axe-scan-<timestamp>.json` with per-page scans and rule-level aggregates
+(`pageCount`, `affectedPages`, `nodeCount`, selector samples); `AE_A11Y_GATE=critical` (default) fails the suite on
+critical findings, `record` only records — which keeps pre-existing site debt from turning the build red.
+
+## 6. Decisions to defend in review
+
+| Decision | Alternative | Why this one |
+|---|---|---|
+| POM + fixtures, no raw locators in tests | Flat files with inline selectors | A layout change touches one page object, not nine specs |
+| `data-qa` and stable `href` | CSS class / XPath | Classes are styling hooks; `data-qa` is the site's own automation contract |
+| Serial, single worker | Parallel for speed | Shared public site throttles; a11y aggregate is module-level state |
+| Severity gate, not zero violations | Fail on any violation | A suite that is red on day one gets ignored |
+| Diff as a ratio | Fixed pixel count | Full-page height varies; a ratio is stable across pages and viewports |
+| Freeze carousels | Mask the carousel region | Masking hides a real regression; freezing keeps it under test |
+| One report directory per run | Single overwritten `reports/` | Last run's evidence is how you compare a new failure with a known-good state |
+
+## 7. Known limits
+
+- The site can return a queue-full page mid-run → `BasePage` fails fast, the `page` fixture annotates it as `site-overload`.
+- Accounts are cleaned up; reviews and contact messages cannot be deleted — an accepted side effect of testing a public demo.
+- Product prices and ids are hard-coded on purpose: a price change *should* fail the suite.
+- Visual baselines are OS- and font-dependent (`-win32`); regenerate with `npm run test:visual:update` on the target OS.
+
+## 8. References
+
+- [Automation test plan](./automation-test-plan.md) — the site's 26 official scenarios mapped to coverage.
+- [AI usage log](./ai-usage-log.md) — where AI-generated code was adopted, corrected or rejected.
+- [README](../README.md) — setup, commands, selector strategy, known quirks.

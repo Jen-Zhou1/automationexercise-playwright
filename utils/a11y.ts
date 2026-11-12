@@ -56,6 +56,13 @@ interface AccessibilityRunReport {
   rules: AccessibilityRuleSummary[];
 }
 
+/**
+ * In-memory aggregate for the current run.
+ * This relies on the single-worker model (`workers: 1`, `fullyParallel: false`):
+ * only then do all scans of the file run in one process. Raising the worker count
+ * would give each child process its own copy and the report would silently lose
+ * pages instead of failing, which is why the worker count is pinned in the config.
+ */
 let currentReport: AccessibilityRunReport | undefined;
 let currentReportPath: string | undefined;
 
@@ -73,7 +80,7 @@ function getImpactRank(impact: string): number {
 }
 
 function getRunId(): string {
-  const runId = process.env.AE_A11Y_REPORT_RUN_ID;
+  const runId = process.env.AE_REPORT_RUN_ID;
   if (!runId) {
     throw new Error('Accessibility report run ID was not initialized by Playwright config');
   }

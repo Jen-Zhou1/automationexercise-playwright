@@ -33,19 +33,19 @@ export class AccountPage extends BasePage {
   readonly continueButton: Locator = this.page.locator('[data-qa="continue-button"]');
 
   async fillAccountInfo(user: TestUser): Promise<void> {
-    await this.titleMr.check();
+    await this.check(this.titleMr);
     await this.fill(this.password, user.password);
-    await this.days.selectOption(user.birth.day);
-    await this.months.selectOption(user.birth.month);
-    await this.years.selectOption(user.birth.year);
-    await this.newsletter.check();
-    await this.partnerOffers.check();
+    await this.selectOption(this.days, user.birth.day);
+    await this.selectOption(this.months, user.birth.month);
+    await this.selectOption(this.years, user.birth.year);
+    await this.check(this.newsletter);
+    await this.check(this.partnerOffers);
     await this.fill(this.firstName, user.firstName);
     await this.fill(this.lastName, user.lastName);
     await this.fill(this.company, user.company);
     await this.fill(this.address1, user.address1);
     await this.fill(this.address2, user.address2);
-    await this.country.selectOption({ label: user.country }); // site dropdown value is the same as the visible label text
+    await this.selectOption(this.country, { label: user.country }); // site dropdown value is the same as the visible label text
     await this.fill(this.state, user.state);
     await this.fill(this.city, user.city);
     await this.fill(this.zipcode, user.zipcode);

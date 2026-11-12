@@ -6,7 +6,7 @@
  *    Only after accepting does JS show the `.alert-success` success message (see README "site-specific behavior").
  */
 import { Locator } from '@playwright/test';
-import { BasePage } from './BasePage';
+import { BasePage, type FileAttachment } from './BasePage';
 import type { ContactSubmission } from '../testdata/checkout';
 
 export class ContactPage extends BasePage {
@@ -19,8 +19,16 @@ export class ContactPage extends BasePage {
   readonly successAlert: Locator = this.page.locator('#contact-page .status.alert-success');
   readonly invalidFields: Locator = this.page.locator('#contact-us-form :invalid');
 
-  async goto(): Promise<void> {
+  async open(): Promise<void> {
     await super.goto('/contact_us');
+  }
+
+  /**
+   * Attach a file built in memory, so no sample file has to live in the repo.
+   * Goes through the base-class wrapper, which keeps the queue-full check intact.
+   */
+  async attachFile(file: FileAttachment): Promise<void> {
+    await this.setInputFiles(this.fileUpload, file);
   }
 
   /**

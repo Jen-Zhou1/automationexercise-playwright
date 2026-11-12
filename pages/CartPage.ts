@@ -8,7 +8,7 @@
  *  - Checkout: `#do_action a.check_out` ("Proceed To Checkout")
  *  - Empty Cart: `#empty_cart` is shown
  */
-import { Locator, type Page } from '@playwright/test';
+import { expect, Locator, type Page } from '@playwright/test';
 import { BasePage } from './BasePage';
 import { SubscriptionSection } from './SubscriptionSection';
 import { env } from '../config/env';
@@ -27,7 +27,13 @@ export class CartPage extends BasePage {
     this.subscription = new SubscriptionSection(page);
   }
 
-  async goto(): Promise<void> {
+  /**
+   * Open the cart page.
+   * Waits for `commit`, then for `domcontentloaded`, rather than for `load`:
+   * ad scripts occasionally hold the load event on this page long after the DOM
+   * is usable, so waiting for load only burns the navigation timeout.
+   */
+  async open(): Promise<void> {
     await this.page.goto('/view_cart', {
       waitUntil: 'commit',
       timeout: env.timeouts.navigation,
@@ -63,9 +69,13 @@ export class CartPage extends BasePage {
     return this.page.locator(`#product-${productId} .cart_price`);
   }
 
-  /** Remove an item (AJAX delete; wait for the row to disappear) */
+  /** Remove an item (AJAX delete; wait for the specific row to disappear). */
   async removeItem(productId: string): Promise<void> {
-    await this.click(this.page.locator(`.cart_quantity_delete[data-product-id="${productId}"]`));
+    const deleteButton = this.page.locator(`.cart_quantity_delete[data-product-id="${productId}"]`);
+    const row = this.productRow(productId);
+
+    await this.click(deleteButton);
+    await expect(row).toHaveCount(0);
   }
 
   async proceedToCheckout(): Promise<void> {

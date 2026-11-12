@@ -29,6 +29,7 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
 
-    # Customize this step as needed
-    - name: Build application
-      run: npx run build
+    # This project has no build step (TypeScript is compiled by Playwright's own loader),
+    # so the readiness check is the type check. Tests are NOT run here.
+    - name: Type check
+      run: npm run typecheck

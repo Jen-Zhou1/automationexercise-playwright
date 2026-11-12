@@ -25,7 +25,7 @@ export class SignupLoginPage extends BasePage {
   );
 
   /** Open the login page; if already on `/login` after logout, wait for the form instead of navigating again. */
-  async goto(): Promise<void> {
+  async open(): Promise<void> {
     const pathname = new URL(this.page.url()).pathname.replace(/\/+$/, '');
     if (pathname !== '/login') {
       await super.goto('/login');

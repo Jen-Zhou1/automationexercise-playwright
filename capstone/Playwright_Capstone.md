@@ -1,6 +1,11 @@
 
 # PLAYWRIGHT CAPSTONE PROJECT 
 
+> **Status: original requirement brief, kept verbatim.** This file is the assignment as given — it describes what was
+> asked for, not what the framework does. For the delivered implementation see [architecture.md](./architecture.md),
+> [automation-test-plan.md](./automation-test-plan.md), [ai-usage-log.md](./ai-usage-log.md) and the
+> [README](../README.md).
+
 ## ENTERPRISE E-COMMERCE AUTOMATION FRAMEWORK
 Application Under Test:  https://automationexercise.com/
 

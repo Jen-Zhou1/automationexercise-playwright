@@ -6,7 +6,6 @@
  */
 import { Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
-import { existsSync } from 'node:fs';
 
 export class OrderConfirmationPage extends BasePage {
   readonly orderPlaced: Locator = this.page.locator('[data-qa="order-placed"]');
@@ -22,17 +21,13 @@ export class OrderConfirmationPage extends BasePage {
 
   /**
    * Download the invoice and save it to this run's directory.
-   * @returns The saved absolute path
+   * `saveAs()` only resolves once the file is actually on disk and throws on its
+   * own if it is not, so no extra existsSync check is needed.
+   * @returns the saved absolute path
    */
   async downloadInvoice(savePath: string): Promise<string> {
-    const [download] = await Promise.all([
-      this.page.waitForEvent('download'),
-      this.downloadInvoiceLink.click(),
-    ]);
+    const download = await this.clickAndWaitForDownload(this.downloadInvoiceLink);
     await download.saveAs(savePath);
-    if (!existsSync(savePath)) {
-      throw new Error(`Invoice file was not saved successfully: ${savePath}`);
-    }
     return savePath;
   }
 

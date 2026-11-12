@@ -1,326 +1,99 @@
-# Automation Exercise Test Cases and Automation Coverage
-
-**Source:** [Automation Exercise Test Cases](https://automationexercise.com/test_cases)  
-**Reviewed:** 2026-10-22  
-**Coverage summary:** 25 Covered · 0 Partial · 0 Not covered · 1 Skipped by policy
-
-This document consolidates the English test scenarios, their execution steps, coverage status, and the corresponding project tests. Steps are restated in English for this framework; scenario names preserve the site's labels. Coverage status describes implementation, while the Test Plan separately identifies cases excluded from every regular test run.
-
-## Test Case 1: Register User
-
-**Automation coverage:** Covered — [01-authentication.spec.ts](../tests/01-authentication.spec.ts)
-
-1. Open the application and confirm the home page loads.
-2. Open Signup / Login and confirm the new-user signup form is available.
-3. Enter a new user's name and email, then submit the signup form.
-4. Confirm the account-information form is displayed.
-5. Complete the title, password, date of birth, newsletter preferences, and address fields.
-6. Submit account creation and confirm the account-created message.
-7. Continue to the home page and confirm the new username is shown as logged in.
-8. Delete the account, confirm the account-deleted message, and continue back to the logged-out home page.
-
-## Test Case 2: Login User with correct email and password
-
-**Automation coverage:** Covered — [01-authentication.spec.ts](../tests/01-authentication.spec.ts)
-
-1. Open the application and navigate to Signup / Login.
-2. Confirm the login form is displayed.
-3. Submit a registered email address and its correct password.
-4. Confirm the logged-in username is shown.
-5. Delete the account and confirm the account-deleted message.
-
-## Test Case 3: Login User with incorrect email and password
-
-**Automation coverage:** Covered — [01-authentication.spec.ts](../tests/01-authentication.spec.ts)
-
-1. Open the application and navigate to Signup / Login.
-2. Confirm the login form is displayed.
-3. Submit an invalid email/password combination.
-4. Confirm the login failure message is displayed.
-
-## Test Case 4: Logout User
-
-**Automation coverage:** Covered — [01-authentication.spec.ts](../tests/01-authentication.spec.ts); [08-register-search-cart-smoke.spec.ts](../tests/08-register-search-cart-smoke.spec.ts)
-
-1. Open the application and navigate to Signup / Login.
-2. Sign in with a valid account and confirm the username is shown as logged in.
-3. Select Logout.
-4. Confirm the user is returned to the login page.
-
-## Test Case 5: Register User with existing email
-
-**Automation coverage:** Covered — [01-authentication.spec.ts](../tests/01-authentication.spec.ts). The lifecycle flow attempts duplicate signup after logout, confirms the error, then logs back in with the original account.
-
-1. Open the application and navigate to Signup / Login.
-2. Confirm the new-user signup form is displayed.
-3. Submit a name with an email address already registered on the site.
-4. Confirm the duplicate-email error is displayed.
-
-## Test Case 6: Contact Us Form
-
-**Automation coverage:** Covered — [07-contact-us-form.spec.ts](../tests/07-contact-us-form.spec.ts)
-
-1. Open the application and navigate to Contact Us.
-2. Confirm the contact form is displayed.
-3. Enter a name, email address, subject, and message.
-4. Attach a file and submit the form.
-5. Accept the browser confirmation dialog.
-6. Confirm the successful-submission message is displayed.
-7. Return to the home page and confirm it loaded successfully.
-
-## Test Case 7: Verify Test Cases Page
-
-**Automation coverage:** Skipped by policy — TC7 only navigates to the site's Test Cases listing page. It does not verify customer-facing business behavior, so it is intentionally not automated.
-
-1. Open the application and confirm the home page loads.
-2. Select Test Cases from the navigation.
-3. Confirm the test-cases page is displayed.
-
-## Test Case 8: Verify All Products and product detail page
-
-**Automation coverage:** Covered — [04-pdp-review-cart-clear.spec.ts](../tests/04-pdp-review-cart-clear.spec.ts)
-
-1. Open the application and navigate to Products.
-2. Confirm the All Products page and product list are displayed.
-3. Open the Blue Top product detail page.
-4. Confirm the product name, category, price, availability, condition, and brand are displayed.
-
-## Test Case 9: Search Product
-
-**Automation coverage:** Covered — [03-products-search-cart-persistence.spec.ts](../tests/03-products-search-cart-persistence.spec.ts)
-
-1. Open the application and navigate to Products.
-2. Confirm the All Products page is displayed.
-3. Enter a product name in the search field and submit the search.
-4. Confirm the searched-products heading and matching product results are displayed.
-
-## Test Case 10: Verify Subscription in home page
-
-**Automation coverage:** Covered — [05-site-scroll-and-subscription.spec.ts](../tests/05-site-scroll-and-subscription.spec.ts)
-
-1. Open the application and confirm the home page loads.
-2. Scroll to the footer and confirm the subscription section is displayed.
-3. Enter an email address and submit the subscription.
-4. Confirm the subscription-success message is displayed.
-
-## Test Case 11: Verify Subscription in Cart page
-
-**Automation coverage:** Covered — [05-site-scroll-and-subscription.spec.ts](../tests/05-site-scroll-and-subscription.spec.ts)
-
-1. Open the application and confirm the home page loads.
-2. Navigate to Cart and scroll to the footer.
-3. Confirm the subscription section is displayed.
-4. Enter an email address and submit the subscription.
-5. Confirm the subscription-success message is displayed.
-
-## Test Case 12: Add Products in Cart
-
-**Automation coverage:** Covered — [02-products-filter-cart.spec.ts](../tests/02-products-filter-cart.spec.ts)
-
-1. Open the application and navigate to Products.
-2. Add the first product to the cart.
-3. Continue shopping and add a different product.
-4. Open the cart and confirm both products are present.
-5. Verify each product's price, quantity, and line total.
-
-## Test Case 13: Verify Product quantity in Cart
-
-**Automation coverage:** Covered — [04-pdp-review-cart-clear.spec.ts](../tests/04-pdp-review-cart-clear.spec.ts)
-
-1. Open the application and open a product detail page.
-2. Confirm the product detail is displayed.
-3. Set the product quantity to four and add it to the cart.
-4. Open the cart and confirm the product is present with the requested quantity.
-
-## Test Case 14: Place Order: Register while Checkout
-
-**Automation coverage:** Covered — [06-checkout-e2e.spec.ts](../tests/06-checkout-e2e.spec.ts)
-
-1. Open the application, add a product to the cart, and open Cart.
-2. Start checkout and choose the Register / Login option in the checkout prompt.
-3. Complete signup and confirm the account-created message.
-4. Continue and confirm the new username is shown as logged in.
-5. Return to Cart and proceed to checkout.
-6. Verify address details and the order review.
-7. Enter an order comment, place the order, and provide payment details.
-8. Confirm the order-success message.
-9. Delete the account, confirm deletion, and continue.
-
-## Test Case 15: Place Order: Register before Checkout
-
-**Automation coverage:** Covered — [06-checkout-e2e.spec.ts](../tests/06-checkout-e2e.spec.ts)
-
-1. Open the application and create a new account before shopping.
-2. Confirm account creation, continue, and verify the logged-in username.
-3. Add a product to the cart and open Cart.
-4. Start checkout and verify the address details and order review.
-5. Enter an order comment, place the order, and provide payment details.
-6. Confirm the order-success message and download the invoice.
-7. Delete the account and confirm the account-deleted message.
-
-## Test Case 16: Place Order: Login before Checkout
-
-**Automation coverage:** Covered — [06-checkout-e2e.spec.ts](../tests/06-checkout-e2e.spec.ts)
-
-1. Open the application and sign in with an existing account.
-2. Confirm the logged-in username is shown.
-3. Add a product to the cart and open Cart.
-4. Proceed to checkout and verify the address details and order review.
-5. Enter an order comment, place the order, and provide payment details.
-6. Confirm the order-success message.
-7. Delete the account and confirm deletion.
-
-## Test Case 17: Remove Products From Cart
-
-**Automation coverage:** Covered — [04-pdp-review-cart-clear.spec.ts](../tests/04-pdp-review-cart-clear.spec.ts)
-
-1. Open the application and add a product to the cart.
-2. Open Cart and confirm the cart page and product are displayed.
-3. Remove the selected product.
-4. Confirm the product row is removed and the cart is empty.
-
-## Test Case 18: View Category Products
-
-**Automation coverage:** Covered — [02-products-filter-cart.spec.ts](../tests/02-products-filter-cart.spec.ts)
-
-1. Open the application and navigate to Products.
-2. Confirm the category sidebar is displayed.
-3. Expand Women and open one of its subcategories.
-4. Confirm the category page heading and product list are displayed.
-5. Expand Men, open one of its subcategories, and confirm the corresponding category page and products.
-
-## Test Case 19: View & Cart Brand Products
-
-**Automation coverage:** Covered — [02-products-filter-cart.spec.ts](../tests/02-products-filter-cart.spec.ts)
-
-1. Open the application and navigate to Products.
-2. Confirm the brand sidebar is displayed.
-3. Open a brand and confirm its brand page and products are displayed.
-4. Add a product from that brand to the cart and confirm it appears in Cart.
-5. Select a different brand and confirm its page and products are displayed.
-
-## Test Case 20: Search Products and Verify Cart After Login
-
-**Automation coverage:** Covered — [03-products-search-cart-persistence.spec.ts](../tests/03-products-search-cart-persistence.spec.ts)
-
-1. Open the application and navigate to Products.
-2. Search for a product name and confirm matching products are displayed.
-3. Add the matching products to the cart and confirm they appear in Cart.
-4. Open Signup / Login and sign in with a valid account.
-5. Return to Cart and confirm the previously added products remain present.
-
-## Test Case 21: Add review on product
-
-**Automation coverage:** Covered — [04-pdp-review-cart-clear.spec.ts](../tests/04-pdp-review-cart-clear.spec.ts)
-
-1. Open the application and navigate to Products.
-2. Open a product detail page and confirm the review section is displayed.
-3. Enter a name, email address, and review, then submit.
-4. Confirm the review-success message is displayed.
-
-## Test Case 22: Add to cart from Recommended items
-
-**Automation coverage:** Covered — [02-products-filter-cart.spec.ts](../tests/02-products-filter-cart.spec.ts)
-
-1. Open the application and scroll to the recommended-items section.
-2. Confirm recommended items are displayed.
-3. Add a recommended product to the cart.
-4. Open Cart and confirm the product is present.
-
-## Test Case 23: Verify address details in checkout page
-
-**Automation coverage:** Covered — [06-checkout-e2e.spec.ts](../tests/06-checkout-e2e.spec.ts)
-
-1. Open the application and create an account with address information.
-2. Continue and confirm the account is logged in.
-3. Add a product to the cart, open Cart, and proceed to checkout.
-4. Compare the delivery address with the registration details.
-5. Compare the billing address with the registration details.
-6. Delete the account and confirm deletion.
-
-## Test Case 24: Download Invoice after purchase order
-
-**Automation coverage:** Covered — [06-checkout-e2e.spec.ts](../tests/06-checkout-e2e.spec.ts) registers during checkout, places the order, downloads the invoice, and verifies the customer name and order amount in its contents.
-
-1. Open the application, add a product to Cart, and proceed to checkout.
-2. Register or sign in when prompted, then continue to Cart and proceed to checkout.
-3. Verify address details and the order review.
-4. Enter an order comment, place the order, and provide payment details.
-5. Confirm the order-success message and download the invoice.
-6. Continue to the home page, delete the account, and confirm deletion.
-
-## Test Case 25: Verify Scroll Up using 'Arrow' button and Scroll Down functionality
-
-**Automation coverage:** Covered — [05-site-scroll-and-subscription.spec.ts](../tests/05-site-scroll-and-subscription.spec.ts)
-
-1. Open the application and confirm the home page loads.
-2. Scroll to the bottom and confirm the subscription section is visible.
-3. Select the bottom-right scroll-up arrow.
-4. Confirm the home-page hero heading is visible in the viewport.
-
-## Test Case 26: Verify Scroll Up without 'Arrow' button and Scroll Down functionality
-
-**Automation coverage:** Covered — [05-site-scroll-and-subscription.spec.ts](../tests/05-site-scroll-and-subscription.spec.ts)
-
-1. Open the application and confirm the home page loads.
-2. Scroll to the bottom and confirm the subscription section is visible.
-3. Scroll back to the top without selecting the arrow.
-4. Confirm the home-page hero heading is visible in the viewport.
-
-## Coverage Summary
-
-| Status | Count |
-|---|---:|
-| Covered | 25 |
-| Partial | 0 |
-| Not covered | 0 |
-| Skipped by policy | 1 |
-
-## Coverage Notes
-
-- **Covered** means the project has a test that verifies the principal behavior in the official scenario.
-- **Partial** means the flow exists but one or more required steps are not yet verified.
-- **Not covered** means no automated test currently verifies the official scenario.
-- **Skipped by policy** means the scenario is intentionally excluded because TC7 only opens the site's Test Cases listing page rather than verifying customer-facing behavior.
-- Related official scenarios may share one automated test file or be combined to avoid repeating setup.
-- Accessibility scans and visual regression are additional framework practices, not among these 26 functional scenarios.
-- The registration-to-cart smoke journey in [08-register-search-cart-smoke.spec.ts](../tests/08-register-search-cart-smoke.spec.ts) checks integration across account access, search, cart, and logout. It intentionally stops before checkout because dedicated regression cases cover order placement and payment.
-- Test titles carry grep-friendly tags: 08 is `@smoke`; 07 is `@smoke @regression`; all other functional tests are `@regression`. Visual tests in 09 are excluded from both tag groups and run separately with `npm run test:visual`. Use `npm run test:smoke` or `npm run test:regression`.
-
-## Test Plan
-
-### Execution policy
-
-- Run functional scenarios TC1–6 and TC8–26, subject to the test groups below.
-- A detected shared-site `queue full` response is a test failure, not a skip or a reason to omit the run.
-- Do not add anonymous/authenticated duplicates by default. Add both states only where authentication changes the behavior or the business requirement explicitly calls for both.
-- Keep visual regression as a separate Chromium-only suite. Run broad axe coverage through the dedicated accessibility suite rather than coupling scans to every business journey.
-- Use `npm run test:smoke` or `npm run test:regression` to filter functional tests by the tags in their titles. Smoke contains 08 plus the overlapping 07 suite; regression includes all functional tests except the smoke-only 08 suite. Run the separate Chromium visual suite with `npm run test:visual`.
-- Run standalone accessibility coverage with `npm run test:a11y`. It runs only in Desktop Chrome, one worker at a time. It records axe results for the homepage, recommended products, catalog, category, brand, product details, login, contact form, cart, checkout, payment, and order confirmation. All historical runs and scan flows are retained in `reports/accessibility/accessibility-report.json`; repeated findings are grouped by axe rule and target while per-scan details remain available. Use `npm run report:a11y` to list history, add `-- --latest` to print the full latest run, or pass a run ID to inspect a past run. Violations are recorded and logged without failing business-flow tests against the shared public demo site. Functional regression tests do not repeat these scans.
-
-### Regression groups
-
-| Group | Official cases | Scope and test mapping |
-|---|---|---|
-| Authentication | TC1–5 | Registration, valid/invalid login, logout, duplicate email, and account deletion; [01-authentication.spec.ts](../tests/01-authentication.spec.ts). The main lifecycle verifies duplicate-signup rejection followed by successful login with the existing account. |
-| Contact form | TC6 | Validate rejected submissions and a successful submission with attachment; [07-contact-us-form.spec.ts](../tests/07-contact-us-form.spec.ts). Do not duplicate in the authenticated state without a requirement showing different behavior. |
-| Product catalog and brands | TC12, TC18, TC19, TC22 | Multi-item cart, category/brand browsing, and recommended-product cart flow; [02-products-filter-cart.spec.ts](../tests/02-products-filter-cart.spec.ts). |
-| Product search and cart persistence | TC9, TC20 | Search and cart verification, network spy/mock behavior, and cart persistence across login; [03-products-search-cart-persistence.spec.ts](../tests/03-products-search-cart-persistence.spec.ts). |
-| Product detail and review | TC8, TC13, TC17, TC21 | Product details/review plus quantity, line total, and removal; [04-pdp-review-cart-clear.spec.ts](../tests/04-pdp-review-cart-clear.spec.ts). |
-| Site-wide footer and scroll behavior | TC10–11, TC25–26 | Home/cart subscription plus scroll-to-top with and without the arrow; [05-site-scroll-subscribe.spec.ts](../tests/05-site-scroll-subscribe.spec.ts). |
-| Checkout E2E journeys | TC14–16, TC23–24 | Three independent user paths: registered before shopping, guest registers at checkout, and existing user signs in before checkout; each runs as an independent test in [06-checkout-e2e.spec.ts](../tests/06-checkout-e2e.spec.ts). TC15/23 additionally validate registered address details; TC15 and TC24 verify invoice content. |
-| Visual regression | Additional framework coverage | Run the visual suite only in Chromium. Baseline screenshots cover the homepage, product catalog, product detail, login, contact form, cart, checkout, payment, and order confirmation; the authenticated order screens use a test account, while dynamic account details are masked. See [09-visual-compare.spec.ts](../tests/09-visual-compare.spec.ts). Keep visual checks separate from the official functional-case count. |
-| Accessibility scanning | Additional framework coverage | The dedicated axe suite in [10-accessibility.spec.ts](../tests/10-accessibility.spec.ts) runs only in Desktop Chrome and scans key storefront and account/order states, including category and brand results. Each run writes one consolidated report to `reports/accessibility/accessibility-report.json`; violations are recorded and logged without failing the test run. |
-
-### Browser rollout
-
-- Desktop Chrome and Pixel 7 (mobile Chromium) are currently enabled. The planned extended matrix also includes Desktop Firefox, Desktop Edge, Desktop WebKit, and iPhone 13 (mobile WebKit). Enable the desired projects in `playwright.config.ts` and install the required browsers before treating them as validated coverage. Accessibility scans run only in Desktop Chrome; other projects skip those tests.
-- Keep `fullyParallel: false` and the global worker limit at 1 to reduce load on the shared public demo site. `npm run test:checkout` also uses one worker.
-- Playwright's `--workers` value limits the whole invocation across all selected projects. For example:
-
-  ```bash
-  npx playwright test --workers=1 --project=chrome --project=mobile-chrome
-  ```
-
-- Run selected projects as one Playwright invocation rather than launching separate project commands concurrently; separate invocations each have their own worker limit and can overload the shared public demo site. Keep `--workers=1` when the site becomes slow or rate-limits requests. Increase concurrency only against an isolated test environment.
-- Visual regression is restricted to the configured Chrome project, so visual checks are not duplicated across the other browser/device projects.
+# Automation Exercise — Test Cases and Automation Coverage
+
+**Source:** [automationexercise.com/test_cases](https://automationexercise.com/test_cases) · **Reviewed:** 2026-11-07
+against the current source tree · **Coverage:** 25 Covered · 0 Partial · 0 Not covered · 1 Skipped by policy
+
+Step sequences are condensed with `→`; scenario names keep the site's labels. Coverage describes implementation — the
+[Execution policy](#4-execution-policy) section covers what is excluded from every regular run.
+
+## 1. The 26 official scenarios
+
+| # | Official scenario | Verified steps (condensed) | Coverage | Spec |
+|---:|---|---|---|---|
+| 1 | Register User | home → signup form → name + email → account form → fill title/password/DOB/address → account created → username shown → delete account | Covered | [01](../tests/01-auth.spec.ts) |
+| 2 | Login with correct credentials | login form → registered email + password → username shown → delete account | Covered | [01](../tests/01-auth.spec.ts) |
+| 3 | Login with incorrect credentials | login form → invalid pair → failure message | Covered | [01](../tests/01-auth.spec.ts) |
+| 4 | Logout User | login → username shown → logout → back to login page | Covered | [01](../tests/01-auth.spec.ts) |
+| 5 | Register with existing email | signup form → already-registered email → duplicate-email error | Covered | [01](../tests/01-auth.spec.ts) |
+| 6 | Contact Us Form | contact page → name/email/subject/message → attach file → confirm dialog → success message → home | Covered | [06](../tests/06-contact.spec.ts) |
+| 7 | Verify Test Cases Page | home → Test Cases nav → listing page shown | Skipped by policy | — |
+| 8 | All Products + product detail | products → list shown → open Blue Top → name/category/price/availability/condition/brand | Covered | [02](../tests/02-catalog.spec.ts) |
+| 9 | Search Product | products → search field → searched-products heading + matches | Covered | [02](../tests/02-catalog.spec.ts) |
+| 10 | Subscription on home page | home → footer → subscription section → email → success | Covered | [05](../tests/05-subscription-back-to-top.spec.ts) |
+| 11 | Subscription on cart page | home → cart → footer → subscription section → email → success | Covered | [05](../tests/05-subscription-back-to-top.spec.ts) |
+| 12 | Add products in cart | products → add first → continue → add second → both present → price/qty/total per row | Covered | [03](../tests/03-cart.spec.ts) |
+| 13 | Product quantity in cart | PDP → qty 4 → add → cart shows the requested quantity | Covered | [03](../tests/03-cart.spec.ts) |
+| 14 | Place order: register while checkout | add to cart → checkout → register in the prompt → logged in → checkout → address + review → comment/pay → success → delete | Covered | [04](../tests/04-checkout.spec.ts) |
+| 15 | Place order: register before checkout | create account → logged in → add to cart → checkout → address + review → pay → success + invoice → delete | Covered | [04](../tests/04-checkout.spec.ts) |
+| 16 | Place order: login before checkout | sign in → username shown → add to cart → checkout → address + review → pay → success → delete | Covered | [04](../tests/04-checkout.spec.ts) |
+| 17 | Remove products from cart | add to cart → cart shows row → remove → row gone, cart empty | Covered | [03](../tests/03-cart.spec.ts) |
+| 18 | View category products | products → category sidebar → Women subcategory → heading + list → Men subcategory → heading + list | Covered | [02](../tests/02-catalog.spec.ts) |
+| 19 | View and cart brand products | products → brand sidebar → brand page → add from brand → cart shows it → another brand page | Covered | [02](../tests/02-catalog.spec.ts) |
+| 20 | Search products, verify cart after login | search → matches → add → cart shows them → sign in → cart still holds them | Covered | [03](../tests/03-cart.spec.ts) |
+| 21 | Add review on product | PDP → review section → name/email/review → submit → success message | Covered | [02](../tests/02-catalog.spec.ts) |
+| 22 | Add to cart from recommended items | home → recommended section → add one → cart shows it | Covered | [02](../tests/02-catalog.spec.ts) |
+| 23 | Verify address in checkout | register with address → logged in → add to cart → checkout → delivery address matches registration → billing address matches → delete | Covered | [04](../tests/04-checkout.spec.ts) |
+| 24 | Download invoice after order | add to cart → checkout → register/sign in → address + review → pay → success + download invoice → delete | Covered | [04](../tests/04-checkout.spec.ts) |
+| 25 | Scroll up with Arrow button | home → footer visible → click scroll-up arrow → hero carousel back in viewport | Covered | [05](../tests/05-subscription-back-to-top.spec.ts) |
+| 26 | Scroll up without Arrow button | home → footer visible → scroll to top manually → hero carousel back in viewport | Covered | [05](../tests/05-subscription-back-to-top.spec.ts) |
+
+### Notes on four cases
+
+| Case | Note |
+|---|---|
+| TC5 | The lifecycle flow attempts the duplicate signup after logout, confirms the error, then logs back in with the original account — so the negative branch is exercised without a second account |
+| TC7 | Deliberately not automated: it only opens the site's own listing page and verifies no customer-facing behaviour (`pages/TestCasesPage.ts` stays as a reference implementation) |
+| TC24 | Registers during checkout, places the order, downloads the invoice, and asserts the customer name and order amount inside the file — not just that a download happened |
+| TC25 / TC26 | The final assertion targets the carousel **container**, not `.item.active`: Bootstrap rebuilds that node every 5 s, so asserting on the slide fails randomly |
+
+## 2. Coverage rules
+
+| Status | Meaning |
+|---|---|
+| Covered | A test verifies the principal behaviour of the official scenario |
+| Partial | The flow exists but one or more required steps are not yet verified |
+| Not covered | No automated test verifies the scenario |
+| Skipped by policy | Intentionally excluded (TC7 only) |
+
+Visual regression and axe scans are additional framework practices, not part of the 26 functional scenarios. Related
+scenarios may share one file to avoid repeating setup. The smoke lane includes the register-before-shopping happy
+checkout path in [04](../tests/04-checkout.spec.ts) and the successful contact submission in [06](../tests/06-contact.spec.ts).
+
+## 3. Regression groups
+
+| Group | Cases | Scope | Spec |
+|---|---|---|---|
+| Authentication | TC1–5 | registration, valid/invalid login, logout, duplicate email, deletion | [01](../tests/01-auth.spec.ts) |
+| Contact form | TC6 | two rejected submissions + one successful submission with attachment (success path also `@smoke`) | [06](../tests/06-contact.spec.ts) |
+| Product discovery | TC8, 9, 18, 19, 21, 22 | category/brand filtering, keyword search with request spy and mocked 500, recommended items, PDP + review | [02](../tests/02-catalog.spec.ts) |
+| Cart | TC12, 13, 17, 20 | multi-item cart, quantity/subtotal from PDP, removal, persistence across logout/login | [03](../tests/03-cart.spec.ts) |
+| Footer and scroll | TC10–11, 25–26 | home/cart subscription, scroll-to-top with and without the arrow | [05](../tests/05-subscription-back-to-top.spec.ts) |
+| Checkout E2E | TC14–16, 23–24 | three independent paths (register before, register during, login before); the register-before path is also `@smoke`; TC15/23 assert registered address data, TC15/24 verify invoice content | [04](../tests/04-checkout.spec.ts) |
+| Visual regression | extra | 3 tests × 10 checkpoints × 3 viewports (desktop 1280, tablet 800, mobile 412) = 30 baselines, full page | [08](../tests/08-visual.spec.ts) |
+| Accessibility | extra | one desktop scan per page, cross-page rule aggregate, fails only on `critical` | [07](../tests/07-a11y.spec.ts) |
+
+## 4. Execution policy
+
+| Rule | Detail |
+|---|---|
+| Scope | Functional scenarios TC1–6 and TC8–26, subject to the groups above |
+| Queue full | A shared-site `queue full` response is a **failure**, never a skip or a reason to omit the run |
+| Anonymous vs authenticated | Do not duplicate by default; add both states only where authentication changes the behaviour |
+| Visual | Separate Chromium-only suite, never coupled to business journeys |
+| Accessibility | Separate suite, Desktop Chrome only, one worker; broad axe coverage does not repeat inside functional tests |
+| Tag selection | `test:smoke` = 2 tests; `test:regression` = the remaining 18 and **excludes** those two, so the pair covers all 20 tagged tests exactly once; `test:gate` runs both, smoke first |
+| axe output | One non-overwritten `reports/a11y/axe-scan-<local-timestamp>.json` (`formatVersion: 2`); findings deduplicated by rule across pages (`pageCount`, `affectedPages`, `nodeCount`, up to five selectors), per-page scans retained |
+| axe gate | `AE_A11Y_GATE` default `critical` fails at the end of the run, after all scans are saved; `record` records without failing. `serious`/`moderate`/`minor` are recorded only |
+| Reporting | `npm run report:a11y` lists runs, `-- --latest` prints the newest, a run ID inspects a past one |
+
+## 5. Browser rollout
+
+| Item | Detail |
+|---|---|
+| Enabled | Desktop Chrome 1280×720 · tablet 800×1280 (visual only) · Pixel 7 mobile Chromium 412×839 |
+| Planned, not enabled | Desktop Firefox · Desktop Edge · Desktop WebKit · iPhone 13 (mobile WebKit). Enable in `playwright.config.ts` and install the engine before calling it coverage |
+| Accessibility | Desktop Chrome only; every other project skips the scans |
+| Concurrency | `fullyParallel: false`, `workers: 1` — the public demo site throttles, and separate invocations each carry their own worker limit |
+| Checkout pinning | `test:checkout` is pinned to `chrome`, so the three E2E journeys run 3 times, not once per project |
+| Multi-project runs | One invocation with several `--project` flags (`npx playwright test --workers=1 --project=chrome --project=mobile-chrome`), not concurrent commands |
+| Visual | Restricted to the three Chromium projects; a new engine starts with an empty baseline set |

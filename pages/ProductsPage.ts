@@ -5,8 +5,9 @@
  *  - Product cards `.single-products` → `.productinfo p` (name), `h2` (price in Rs.), `a.add-to-cart[data-product-id]`
  *  - Add-to-cart success modal `#cartModal` ("Added!" + View Cart link + Continue Shopping)
  */
-import { Locator } from '@playwright/test';
+import { Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { freezeCarousels } from '../utils/carousel';
 
 export class ProductsPage extends BasePage {
   readonly searchBox: Locator = this.page.locator('#search_product');
@@ -25,16 +26,18 @@ export class ProductsPage extends BasePage {
   readonly modalViewCart: Locator = this.page.locator('#cartModal a[href="/view_cart"]');
   readonly continueShoppingButton: Locator = this.page.locator('#cartModal .close-modal');
 
-  async goto(): Promise<void> {
+  async open(): Promise<void> {
     await super.goto('/products');
   }
 
-  /** Search: fill keyword → click → wait for the full-page redirect to finish */
+  /** Search: fill keyword → click → wait for the redirect, then assert the result list is rendered */
   async search(keyword: string): Promise<void> {
     await this.fill(this.searchBox, keyword);
     await this.click(this.searchButton);
     await this.page.waitForURL(/\/products\?search=/, { waitUntil: 'domcontentloaded' });
-    await this.productCards.first().waitFor({ state: 'visible' });
+    /* An expect (not waitFor) reports the locator and the actual state, so an
+       empty result set is distinguishable from a page that never loaded. */
+    await expect(this.productCards.first()).toBeVisible();
   }
 
   /** Locate a product card by name (the name is unique; this filters out other cards) */
@@ -63,12 +66,13 @@ export class ProductsPage extends BasePage {
 
   /** Open the product details page from the product card. */
   async openProductDetails(name: string): Promise<void> {
-    await this.page
-      .locator('.product-image-wrapper')
-      .filter({ hasText: name })
-      .first()
-      .locator('a[href^="/product_details/"]')
-      .click();
+    await this.click(
+      this.page
+        .locator('.product-image-wrapper')
+        .filter({ hasText: name })
+        .first()
+        .locator('a[href^="/product_details/"]'),
+    );
   }
 
   /** Open a specific product category. */
@@ -76,18 +80,40 @@ export class ProductsPage extends BasePage {
     await this.click(this.categoryLink(name));
   }
 
+  /** Expand a category group in the sidebar (e.g. "Women") so its subcategories become clickable. */
+  async expandCategory(name: string): Promise<void> {
+    await this.click(this.categoryHeading(name));
+  }
+
   /** Open the product list for a specific brand. */
   async openBrand(name: string): Promise<void> {
     await this.click(this.brandLink(name));
   }
 
-  /** Add the first currently displayed recommended product to cart and wait for the confirmation modal. */
-  async addRecommendedProductToCart(): Promise<void> {
-    await this.recommendedItems.scrollIntoViewIfNeeded();
-    const activeProduct = this.recommendedItems.locator('.item.active');
-    await activeProduct.locator('.add-to-cart').first().click();
+  /**
+   * Add a recommended product to the cart and return the id that was clicked.
+   * The recommended strip auto-advances (`data-ride="carousel"`). Reading the id
+   * from `.item.active` and then re-resolving `.item.active` to click it is a
+   * race: one slide change in between and the test clicks a different product.
+   * Freezing first, then reading and clicking in a single resolution, makes the
+   * two steps atomic.
+   */
+  async addRecommendedProductToCart(): Promise<string> {
+    await freezeCarousels(this.page);
+
+    const addButton = this.recommendedItems
+      .locator('.item.active .add-to-cart')
+      .first();
+    const productId = (await addButton.getAttribute('data-product-id')) ?? '';
+    if (!productId) {
+      throw new Error('The recommended product is missing its product ID');
+    }
+
+    await this.scrollTo(addButton);
+    await this.click(addButton);
     await this.expectVisible(this.cartModal);
     await this.expectText(this.cartModal, 'Added!');
+    return productId;
   }
 
   /**
@@ -110,7 +136,8 @@ export class ProductsPage extends BasePage {
 
   /** Click the add-to-cart button on a product card without waiting for the success modal (used to validate failure responses). */
   async clickAddToCartByName(name: string): Promise<void> {
-    await this.productCard(name).locator('.productinfo a.add-to-cart').click();
+    /* Uses the base-class click, so the queue-full check applies here too. */
+    await this.click(this.productCard(name).locator('.productinfo a.add-to-cart'));
   }
 
   async viewCartFromModal(): Promise<void> {

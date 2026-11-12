@@ -1,12 +1,21 @@
 name: Run Playwright Tests
 
+# There are only three trigger types, and a schedule is intentionally omitted:
+#   pull_request → smoke (2 tests)
+#   push → regression (19 tests; the 2 smoke tests are excluded with --grep-invert,
+#                       so the two paths do not overlap)
+#   Manual → choose smoke / regression / accessibility / visual / all
+#            all = smoke + regression + a11y + visual, for complete coverage
+#            Suites run independently: a failed suite does not skip later suites.
+# Scheduled checks against the public demo site would only accumulate server-side data
+# and create noisy failures. Design them separately if needed.
 on:
   pull_request:
     branches:
-      - main
+      - final
   push:
     branches:
-      - main
+      - final
   workflow_dispatch:
     inputs:
       suite:
@@ -20,8 +29,12 @@ on:
           - visual
           - all
         default: regression
+# Runs on the same branch are serialized to prevent conflicts; different branches do not block each other.
+# Note: The public demo site is sensitive to concurrency. If occasional failures occur because
+# runs on different branches interfere with each other, change group back to the fixed value
+# `automationexercise-public-demo` to queue all runs.
 concurrency:
-  group: automationexercise-public-demo
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -52,25 +65,41 @@ jobs:
             ${{ runner.os }}-playwright-
 
       - name: Install dependencies
+        id: install-dependencies
         run: npm ci
 
+      - name: Type check
+        id: type-check
+        # Run this before installing browsers: compilation errors surface in about 20 seconds,
+        # rather than waiting for browser installation and failing partway through the workflow.
+        run: npm run typecheck
+
       - name: Install Playwright browser
+        id: install-playwright-browser
+        # One command is sufficient: `install chromium` also installs ffmpeg automatically
+        # (Playwright 1.64's resolveBrowsers adds ffmpeg for any target with a browserName),
+        # so a separate `install ffmpeg` command is redundant.
         run: npx playwright install chromium
 
+      # The test steps bypass the default success() condition so a failure in one suite does
+      # not skip the others. Setup must still succeed, and cancellation still stops later suites.
+      # The two paths complement each other without overlap: smoke runs 2 fast tests, while
+      # regression excludes those already-run tests with --grep-invert (19 tests). Therefore,
+      # suite=all must run **both** for complete functional coverage (2 + 19 = all 21 tagged tests).
       - name: Run smoke tests
-        if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'smoke' || inputs.suite == 'all'))
+        if: ${{ !cancelled() && steps.install-playwright-browser.outcome == 'success' && (github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'smoke' || inputs.suite == 'all'))) }}
         run: npm run test:smoke
 
       - name: Run regression tests
-        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'regression' || inputs.suite == 'all'))
+        if: ${{ !cancelled() && steps.install-playwright-browser.outcome == 'success' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'regression' || inputs.suite == 'all'))) }}
         run: npm run test:regression
 
       - name: Run accessibility tests
-        if: github.event_name == 'workflow_dispatch' && (inputs.suite == 'accessibility' || inputs.suite == 'all')
+        if: ${{ !cancelled() && steps.install-playwright-browser.outcome == 'success' && github.event_name == 'workflow_dispatch' && (inputs.suite == 'accessibility' || inputs.suite == 'all') }}
         run: npm run test:a11y
 
       - name: Run visual regression tests
-        if: github.event_name == 'workflow_dispatch' && (inputs.suite == 'visual' || inputs.suite == 'all')
+        if: ${{ !cancelled() && steps.install-playwright-browser.outcome == 'success' && github.event_name == 'workflow_dispatch' && (inputs.suite == 'visual' || inputs.suite == 'all') }}
         run: npm run test:visual
 
       - name: Upload Playwright reports

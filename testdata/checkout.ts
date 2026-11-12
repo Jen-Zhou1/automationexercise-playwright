@@ -1,8 +1,6 @@
 /**
  * testdata/checkout.ts
  */
-import { ADDRESS } from './address';
-
 export interface PaymentCard {
   label: string;
   nameOnCard: string;
@@ -60,5 +58,3 @@ export const CONTACT_INVALID_SUBMISSIONS: ContactSubmission[] = [
     expectBrowserValidation: true,
   },
 ];
-
-export { ADDRESS };

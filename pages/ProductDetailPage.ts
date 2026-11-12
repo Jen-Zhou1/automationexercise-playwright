@@ -28,7 +28,7 @@ export class ProductDetailPage extends BasePage {
     exact: true,
   });
 
-  async goto(productId: string): Promise<void> {
+  async openProduct(productId: string): Promise<void> {
     await super.goto(`/product_details/${productId}`);
   }
 

@@ -1,6 +1,7 @@
 /**
  * testdata/users.ts
- * Use utils/data-generator to generate user data for registration
+ * Account data is produced by utils/data-generator; only the invalid
+ * credential sets are static, because they must stay wrong on purpose.
  */
 import { env } from '../config/env';
 
@@ -22,12 +23,12 @@ export interface TestUser {
   birth: { day: string; month: string; year: string };
 }
 
-/** Data-driven authentication error scenario（01-account-access.spec.ts Checkout） */
+/** Data-driven authentication failures (tests/01-auth.spec.ts). */
 export interface InvalidLoginAttempt {
   email: string;
   password: string;
   reason: string;
-  /** Validate HTML5 will block invalid email */
+  /** True when HTML5 validation stops the submit before it reaches the server */
   blockedByBrowserValidation?: boolean;
 }
 
@@ -38,17 +39,16 @@ export const INVALID_LOGIN_ATTEMPTS: InvalidLoginAttempt[] = [
     reason: 'unregistered email',
   },
   {
+    /* The site returns the same message for an unknown account, so this case
+       checks that a wrong password never reveals whether the account exists. */
     email: 'locked_out_qa@example.com',
     password: 'wrong_password',
-    reason: 'wrong password',
+    reason: 'wrong password for a non-existent account',
   },
   {
     email: 'not-an-email-format',
     password: env.testUserPassword,
-    reason: 'invalid email(HTML5 validation)',
+    reason: 'invalid email (HTML5 validation)',
     blockedByBrowserValidation: true,
   },
 ];
-
-/** Consistent for registration（Mr=id_gender1 / Mrs=id_gender2） */
-export const DEFAULT_TITLE = 'Mr' as const;
