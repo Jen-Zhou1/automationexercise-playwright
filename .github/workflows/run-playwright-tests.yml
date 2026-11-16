@@ -2,24 +2,25 @@ name: Run Playwright Tests
 
 # There are only three trigger types, and a schedule is intentionally omitted:
 #   pull_request → smoke (2 tests)
-#   push → regression (19 tests; the 2 smoke tests are excluded with --grep-invert,
+#   push → regression (18 tests; the 2 smoke tests are excluded with --grep-invert,
 #                       so the two paths do not overlap)
-#   Manual → choose smoke / regression / accessibility / visual / all
+#   Manual → choose smoke / regression / accessibility / visual / visual-update / all
 #            all = smoke + regression + a11y + visual, for complete coverage
+#            visual-update regenerates baselines and publishes them as an artifact
 #            Suites run independently: a failed suite does not skip later suites.
 # Scheduled checks against the public demo site would only accumulate server-side data
 # and create noisy failures. Design them separately if needed.
 on:
   pull_request:
     branches:
-      - main
+      - final
   push:
     branches:
-      - main
+      - final
   workflow_dispatch:
     inputs:
       suite:
-        description: Test suite to run
+        description: Test suite to run (visual-update regenerates baseline snapshots)
         required: true
         type: choice
         options:
@@ -27,6 +28,7 @@ on:
           - regression
           - accessibility
           - visual
+          - visual-update
           - all
         default: regression
 # Runs on the same branch are serialized to prevent conflicts; different branches do not block each other.
@@ -45,6 +47,7 @@ jobs:
     env:
       CI: true
       HEADLESS: true
+      AE_RETRIES: '0'
 
     steps:
       - name: Checkout repository
@@ -84,8 +87,8 @@ jobs:
       # The test steps bypass the default success() condition so a failure in one suite does
       # not skip the others. Setup must still succeed, and cancellation still stops later suites.
       # The two paths complement each other without overlap: smoke runs 2 fast tests, while
-      # regression excludes those already-run tests with --grep-invert (19 tests). Therefore,
-      # suite=all must run **both** for complete functional coverage (2 + 19 = all 21 tagged tests).
+      # regression excludes those already-run tests with --grep-invert (18 tests). Therefore,
+      # suite=all must run **both** for complete functional coverage (2 + 18 = all 20 tagged tests).
       - name: Run smoke tests
         if: ${{ !cancelled() && steps.install-playwright-browser.outcome == 'success' && (github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'smoke' || inputs.suite == 'all'))) }}
         run: npm run test:smoke
@@ -102,6 +105,11 @@ jobs:
         if: ${{ !cancelled() && steps.install-playwright-browser.outcome == 'success' && github.event_name == 'workflow_dispatch' && (inputs.suite == 'visual' || inputs.suite == 'all') }}
         run: npm run test:visual
 
+      - name: Update visual baselines
+        id: update-visual-baselines
+        if: ${{ !cancelled() && steps.install-playwright-browser.outcome == 'success' && github.event_name == 'workflow_dispatch' && inputs.suite == 'visual-update' }}
+        run: npm run test:visual:update
+
       - name: Upload Playwright reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -109,4 +117,13 @@ jobs:
           name: playwright-report-${{ github.run_id }}-${{ github.run_attempt }}
           path: reports/**
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 10
+
+      - name: Upload updated visual baselines
+        if: ${{ always() && steps.update-visual-baselines.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tests/08-visual.spec.ts-snapshots/
+          if-no-files-found: error
+          retention-days: 10

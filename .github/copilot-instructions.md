@@ -7,8 +7,10 @@
 1. **Selector priority**: `[data-qa="..."]` > stable `href` / attribute > `#id` > semantic class > text.
    - The `href` tier is explicit: the site's navigation, category and brand links are the most stable handles it offers.
    - Do not use long XPath or CSS selectors that depend on element hierarchy (for example, `div > div > span:nth-child(2)`).
-   - Do not use `:nth-child()`, `nth()`, `.first()` / `.last()`, or any index to pick a list item; use `filter({ hasText })`,
-     a `data-*` attribute, or `getByRole`. Position in a list is not identity.
+   - Do not use a bare positional selector (`:nth-child()`, `nth()`, `.first()` / `.last()`, or an index) to identify a list item;
+     use `filter({ hasText })`, a `data-*` attribute, or `getByRole` to identify it instead. Position in a list is not identity.
+   - After filtering by a stable identity, `.first()` is allowed only when the filtered locator is expected to match exactly one element.
+     Do not use `.first()` to hide ambiguous matches; add a uniqueness assertion when multiple matches are possible.
    - A locator referenced from two places becomes a named `readonly` field on the page object. Duplicated selector strings
      drift apart, and one of them silently starts matching something else.
 2. **Never synchronise with `page.waitForTimeout()`** (or any fixed sleep / retry loop with a timer). Use Playwright's

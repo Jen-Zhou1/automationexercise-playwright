@@ -15,8 +15,8 @@ import { generateUser } from '../utils/data-generator';
 import type { TestUser } from '../testdata/users';
 import { env } from '../config/env';
 import { log } from '../utils/logger';
-import { blockThirdPartyAds } from '../utils/network';
-import { SITE_OVERLOAD_MESSAGE } from '../pages/BasePage';
+import { blockThirdPartyAds, getMainDocumentHealth } from '../utils/network';
+import { SITE_MESSAGES } from '../testdata/site-messages';
 
 export interface AuthedUser {
   page: Page;
@@ -36,6 +36,7 @@ export const test = base.extend<{
    * annotation and an attachment, so the original cause is preserved.
    */
   page: async ({ page }, use, testInfo) => {
+    const documentHealth = getMainDocumentHealth(page);
     await use(page);
 
     if (page.isClosed()) {
@@ -53,11 +54,20 @@ export const test = base.extend<{
       return;
     }
 
-    if (!bodyText.includes(SITE_OVERLOAD_MESSAGE)) {
+    const unavailable =
+      bodyText.includes(SITE_MESSAGES.queueFull) ||
+      (documentHealth.hasResponse &&
+        (documentHealth.status >= 500 || bodyText.trim().length === 0));
+    if (!unavailable) {
       return;
     }
 
-    const message = `Automation Exercise is overloaded (queue full) at ${page.url()}`;
+    const reason = bodyText.includes(SITE_MESSAGES.queueFull)
+      ? 'queue full'
+      : documentHealth.status >= 500
+        ? `HTTP ${documentHealth.status}`
+        : 'empty document';
+    const message = `Automation Exercise returned ${reason} at ${page.url()}`;
     if (testInfo.status === 'passed') {
       throw new Error(message);
     }

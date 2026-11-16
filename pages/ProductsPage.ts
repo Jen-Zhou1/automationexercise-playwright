@@ -8,6 +8,7 @@
 import { Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 import { freezeCarousels } from '../utils/carousel';
+import { SITE_MESSAGES } from '../testdata/site-messages';
 
 export class ProductsPage extends BasePage {
   readonly searchBox: Locator = this.page.locator('#search_product');
@@ -112,7 +113,7 @@ export class ProductsPage extends BasePage {
     await this.scrollTo(addButton);
     await this.click(addButton);
     await this.expectVisible(this.cartModal);
-    await this.expectText(this.cartModal, 'Added!');
+    await this.expectText(this.cartModal, SITE_MESSAGES.addToCartSuccess);
     return productId;
   }
 
@@ -130,7 +131,7 @@ export class ProductsPage extends BasePage {
     }
     await this.clickAddToCartByName(name);
     await this.expectVisible(this.cartModal);
-    await this.expectText(this.cartModal, 'Added!');
+    await this.expectText(this.cartModal, SITE_MESSAGES.addToCartSuccess);
     return productId;
   }
 

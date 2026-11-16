@@ -5,10 +5,11 @@
  *  - a carousel advancing on its own (Bootstrap's JS timer, which
  *    `animations: 'disabled'` does not stop)
  *  - webfonts still swapping, so text reflows
- *  - images not finished loading, so placeholders have a different height
+ *  - images still loading or failed, so placeholders have a different height
  *  - the mouse resting on an element, capturing a hover state
  *
- * Call once before every capture. Cost is roughly 0.3-1 s.
+ * Call once before every capture. Broken images abort with their URL. Cost is
+ * roughly 0.3-1 s when assets are healthy.
  */
 import type { Page } from '@playwright/test';
 import { freezeCarousels } from '../utils/carousel';
@@ -32,7 +33,7 @@ export async function stabilizeForScreenshot(page: Page): Promise<void> {
   await page.waitForTimeout(SETTLE_MS);
 }
 
-/** Wait for webfonts and for every unfinished <img>; both have an upper bound. */
+/** Wait boundedly for webfonts and unfinished images, then reject known broken images. */
 async function waitForAssets(page: Page): Promise<void> {
   const assetsReady = page.evaluate(async () => {
     const fonts = (document as unknown as { fonts?: { ready: Promise<unknown> } }).fonts;
@@ -58,4 +59,16 @@ async function waitForAssets(page: Page): Promise<void> {
   });
 
   await Promise.race([assetsReady, page.waitForTimeout(ASSET_TIMEOUT_MS)]);
+
+  const failedImageUrls = await page.evaluate(() =>
+    Array.from(document.images)
+      .filter((image) => image.complete && image.naturalWidth === 0)
+      .map((image) => image.currentSrc || image.src || '(missing src)'),
+  );
+  if (failedImageUrls.length > 0) {
+    throw new Error(
+      `Screenshot aborted: ${failedImageUrls.length} image(s) failed to load:\n` +
+        failedImageUrls.map((url) => `- ${url}`).join('\n'),
+    );
+  }
 }

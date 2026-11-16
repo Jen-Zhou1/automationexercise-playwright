@@ -80,8 +80,10 @@ checkout path in [04](../tests/04-checkout.spec.ts) and the successful contact s
 | Queue full | A shared-site `queue full` response is a **failure**, never a skip or a reason to omit the run |
 | Anonymous vs authenticated | Do not duplicate by default; add both states only where authentication changes the behaviour |
 | Visual | Separate Chromium-only suite, never coupled to business journeys |
+| Broken images | Before a visual screenshot, completed images with `naturalWidth === 0` abort capture with their URLs; no automatic retry |
+| CI baseline update | Manual `visual-update` runs `npm run test:visual:update` and uploads snapshots as an artifact; reviewed baselines are committed manually |
 | Accessibility | Separate suite, Desktop Chrome only, one worker; broad axe coverage does not repeat inside functional tests |
-| Tag selection | `test:smoke` = 2 tests; `test:regression` = the remaining 18 and **excludes** those two, so the pair covers all 20 tagged tests exactly once; `test:gate` runs both, smoke first |
+| Tag selection | `test:smoke` = 2 tests; `test:regression` = the remaining 18 and **excludes** those two, so the pair covers all 20 tagged tests exactly once; `test:gate` runs both, and continues to regression if smoke fails |
 | axe output | One non-overwritten `reports/a11y/axe-scan-<local-timestamp>.json` (`formatVersion: 2`); findings deduplicated by rule across pages (`pageCount`, `affectedPages`, `nodeCount`, up to five selectors), per-page scans retained |
 | axe gate | `AE_A11Y_GATE` default `critical` fails at the end of the run, after all scans are saved; `record` records without failing. `serious`/`moderate`/`minor` are recorded only |
 | Reporting | `npm run report:a11y` lists runs, `-- --latest` prints the newest, a run ID inspects a past one |

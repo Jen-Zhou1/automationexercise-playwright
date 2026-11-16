@@ -7,7 +7,7 @@
 
 | Requirement (from the brief) | Where it is implemented |
 |---|---|
-| Page Object Model | `pages/` — one class per page, `BasePage` holds shared actions |
+| Page Object Model | `pages/` — `Component` owns shared wrapped actions; `BasePage` adds site-relative navigation for page objects |
 | Custom fixtures | `fixtures/base-fixtures.ts` — `registeredUser`, `authedUser`, `adBlocker`, plus a queue-full guard on `page` |
 | Data-driven testing | `testdata/` + `tests/01-auth.spec.ts` (login failures), `tests/02-catalog.spec.ts` (search matrix) |
 | Network interception and mocking | `utils/network.ts` — request spy and a mocked `500` on add-to-cart, asserted in `tests/02-catalog.spec.ts` |
@@ -26,7 +26,8 @@ Everything runs from a terminal on one machine. There is no server, database or 
 
 Tests only orchestrate and assert. They obtain a page through custom fixtures, which register or
 authenticate a user and clean it up afterwards. Page objects own every locator and expose business verbs
-(`addToCartByName`, `proceedToCheckout`), with `BasePage` providing the shared actions. Utilities hold
+(`addToCartByName`, `proceedToCheckout`), with `Component` providing shared wrapped actions and `BasePage`
+adding site-relative navigation. Utilities hold
 everything that has no business meaning: data generation, network helpers, carousel control, axe plumbing.
 `config/env.ts` is the only module that reads `process.env`. Dependencies point one way — `tests → fixtures →
 pages → utils/config` — and nothing points back up, which is what keeps a UI change to a one-file edit.
@@ -73,10 +74,16 @@ site debt; neither should turn a functional run red. `@smoke` is a true subset o
 |---|---|
 | `npm run test:smoke` | 2 tests: checkout and successful contact submission |
 | `npm run test:regression` | 18 tests (20 tagged, 2 excluded) |
-| `npm run test:gate` | smoke, then regression (2 + 18) |
+| `npm run test:gate` | smoke, then regression (2 + 18); regression still runs if smoke fails |
+| `npm run test:regression:all-viewports` | 36 tests: 18 each on Chrome and mobile Chromium |
 | `npm run test:a11y` | 3 scans, desktop only |
 | `npm run test:visual` | 3 tests × 3 viewports = 9 comparisons |
 | `npm run test:checkout` | the three checkout journeys |
+
+To regenerate baselines in CI, open **Actions → Run Playwright Tests → Run workflow** and select
+`visual-update`. On success, download the `visual-baselines-<run-id>-<attempt>` artifact, review the PNGs,
+restore them to `tests/08-visual.spec.ts-snapshots/`, and commit the approved changes. This workflow does not
+commit baselines automatically; selecting `visual` only compares against the existing baselines.
 
 ## 4. Running it locally
 
@@ -117,8 +124,9 @@ switches from a hamburger to a horizontal menu. 800 is used rather than 768 on p
 the boundary records the wrong band once a scrollbar takes ~15 px.
 
 **Cross-engine execution** is configured but not enabled by default: `edge`, `firefox`, `webkit` and
-`mobile-safari` (iPhone 13) sit in a commented block in `playwright.config.ts`. Six projects would mean six
-full passes over 21 functional tests against a shared public demo, so they are opt-in:
+`mobile-safari` (iPhone 13) sit in a commented block in `playwright.config.ts`. Enabling all six
+functional-capable projects would mean six full passes over 20 tagged tests (120 serial runs) against a shared
+public demo, so they are opt-in. The tablet project remains visual-only:
 
 ```bash
 npx playwright install firefox webkit msedge
@@ -142,17 +150,20 @@ Each run writes to its own directory, and only the run summary is always produce
 A failing test is meant to be diagnosable without re-running it: open the HTML report, then the trace, and
 step through the recorded actions with the DOM snapshot at each one. `test.step` groups the long journeys by
 business phase, so a failure reads "the payment step failed" rather than a line number.
+`npm run clean` retains the newest 10 run directories and 30 accessibility reports by default; `-- --dry-run`
+previews cleanup without deleting files.
 
 ## 7. Design decisions
 
 | Decision | Reason |
 |---|---|
 | Locator priority: `[data-qa]` → stable `href` → `#id` → semantic class → text | The site exposes `data-qa` on every form; hierarchy-based XPath breaks on any DOM change |
-| No fixed sleeps; auto-waiting and web-first assertions | The only delay is the documented settle inside `helpers/stabilize.ts` |
-| Every action goes through a `BasePage` wrapper | The wrappers run the queue-full check, so an overloaded site reports "the site is queueing", not "element not found" |
+| No fixed sleeps; auto-waiting and web-first assertions | The only timer waits are the bounded asset wait and documented settle inside `helpers/stabilize.ts` |
+| Every action goes through a `Component` wrapper | Page objects inherit wrappers through `BasePage`; UI components such as SubscriptionSection use `Component` directly |
 | A fresh account per test, generated email | Accounts are permanent on the demo site; a fixed email collides on the second run |
 | `open()` / `openProduct(id)` instead of overriding `goto()` | An override changes what the base signature means; `noImplicitOverride` now rejects it |
 | Timeouts and budgets live in `config/env.ts` | `accountLifecycle` (register + cleanup) and `journey` (the multi-page flows) must match the fixture, otherwise the cleanup allowance never applies |
+| Broken images abort visual capture with their URL | Asset waiting is bounded; third-party image failures are reported before the screenshot, without retrying them |
 | One worker, no parallelism | The demo site throttles, and the a11y aggregate lives in module state |
 | Visual thresholds in the tests, not the config | One source of truth; a config value was silently overridden before |
 | Carousels frozen before every capture | The Bootstrap sliders advance on a JS timer that `animations: 'disabled'` does not stop |
@@ -163,14 +174,14 @@ business phase, so a failure reads "the payment step failed" rather than a line 
 ```text
 config/       environment variables, timeouts, project-name validation
 fixtures/     account creation, login state, ad blocking, queue-full detection
-helpers/      screenshot stabilisation
+helpers/     screenshot stabilisation and failed-image checks
 pages/        page objects and business actions
 tests/        orchestration and assertions (9 files)
 testdata/     product, user, contact and payment data
 utils/        data generation, network, carousel, accessibility, logging
 capstone/     requirement brief, architecture, test plan, AI usage log
 reports/      per-run reports, failure evidence, axe records
-scripts/      report viewer and cleanup helpers
+scripts/      report viewer, gate runner and cleanup helpers
 ```
 
 ## 9. Known limits

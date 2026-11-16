@@ -8,10 +8,10 @@
     "test:chrome": "playwright test --project=chrome",
     "test:mobile": "playwright test --project=mobile-chrome",
     "test:smoke": "playwright test --project=chrome --grep \"@smoke\"",
-    "test:gate": "npm run test:smoke && npm run test:regression",
+    "test:gate": "node scripts/run-gate.cjs",
     "test:regression": "playwright test --project=chrome --grep \"@regression\" --grep-invert \"@smoke\"",
     "test:regression:mobile": "playwright test --project=mobile-chrome --grep \"@regression\" --grep-invert \"@smoke\"",
-    "test:functional": "playwright test --grep \"@regression\" --grep-invert \"@smoke\"",
+    "test:regression:all-viewports": "playwright test --project=chrome --project=mobile-chrome --grep \"@regression\" --grep-invert \"@smoke\"",
     "test:checkout": "playwright test --project=chrome tests/04-checkout.spec.ts",
     "test:a11y": "playwright test --project=chrome --grep \"@a11y\"",
     "test:visual": "playwright test --project=chrome --project=mobile-chrome --project=tablet-chrome --grep \"@visual\"",
@@ -28,10 +28,8 @@
     "@axe-core/playwright": "4.14.0",
     "@playwright/test": "1.64.1",
     "@types/node": "^22.10.0",
+    "dotenv": "^18.0.8",
     "typescript": "^5.6.0"
-  },
-  "dependencies": {
-    "dotenv": "^18.0.8"
   },
   "engines": {
     "node": ">=22.12.0"

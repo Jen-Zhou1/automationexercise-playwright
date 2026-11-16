@@ -3,9 +3,9 @@
  * The page uses `#susbscribe_email`, `#subscribe`, and `#success-subscribe`.
  */
 import { Locator } from '@playwright/test';
-import { BasePage } from './BasePage';
+import { Component } from './Component';
 
-export class SubscriptionSection extends BasePage {
+export class SubscriptionSection extends Component {
   readonly heading: Locator = this.page.getByText('Subscription', { exact: true });
   readonly emailInput: Locator = this.page.locator('#susbscribe_email');
   readonly subscribeButton: Locator = this.page.locator('#subscribe');

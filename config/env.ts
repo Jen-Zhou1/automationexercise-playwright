@@ -66,7 +66,7 @@ export const env = {
     registration: registrationTimeout,
     /** Registration + cleanup; shared by the account tests and the fixture. */
     accountLifecycle: accountLifecycleTimeout,
-    /** Registration followed by a multi-page journey (07 smoke, 08 and 09 checkout). */
+    /** Registration followed by a multi-page smoke or checkout journey. */
     journey: journeyTimeout,
     action: toPositiveInteger(process.env.AE_ACTION_TIMEOUT, 30_000, 'AE_ACTION_TIMEOUT'),
     navigation: toPositiveInteger(process.env.AE_NAV_TIMEOUT, 90_000, 'AE_NAV_TIMEOUT'),

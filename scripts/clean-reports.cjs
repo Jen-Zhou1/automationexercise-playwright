@@ -50,19 +50,35 @@ function remove(target) {
 }
 
 /**
- * A "listed but never executed" directory: `--list` used to create report
- * directories whose results.json has expected / unexpected / flaky all at zero
- * and only skipped entries. There is nothing to diagnose in those, so they go.
- * A directory whose results.json cannot be read is kept, so evidence is never
- * deleted by mistake.
+ * A "listed but never executed" directory has zero execution counts and no
+ * skipped test outcomes. Runs containing only skipped tests are retained as
+ * useful evidence. A directory whose results.json cannot be read is kept.
  */
 function isListOnlyRun(directory) {
   const resultsPath = path.join(directory, 'results.json');
   if (!fs.existsSync(resultsPath)) return false;
   try {
-    const { stats = {} } = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
+    const { stats = {}, suites } = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
     const executed = (stats.expected ?? 0) + (stats.unexpected ?? 0) + (stats.flaky ?? 0);
-    return executed === 0;
+    if (executed !== 0 || !Array.isArray(suites) || suites.length === 0) {
+      return false;
+    }
+
+    let hasSkippedOutcome = false;
+    function inspectSuites(entries) {
+      for (const suite of entries) {
+        for (const spec of suite.specs ?? []) {
+          for (const test of spec.tests ?? []) {
+            if ((test.results ?? []).some((result) => result.status === 'skipped')) {
+              hasSkippedOutcome = true;
+            }
+          }
+        }
+        inspectSuites(suite.suites ?? []);
+      }
+    }
+    inspectSuites(suites);
+    return !hasSkippedOutcome && (stats.skipped ?? 0) === 0;
   } catch {
     return false;
   }

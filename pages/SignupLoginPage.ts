@@ -2,9 +2,10 @@
  * Signup / login page (pages/SignupLoginPage.ts)
  * The site uses a single page for `/signup` and `/login`, which carries both forms at the same time.
  */
-import { Locator } from '@playwright/test';
+import { Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 import { env } from '../config/env';
+import { SITE_MESSAGES } from '../testdata/site-messages';
 
 export class SignupLoginPage extends BasePage {
   // Login form (data-qa verified)
@@ -19,10 +20,9 @@ export class SignupLoginPage extends BasePage {
   readonly signupName: Locator = this.page.locator('[data-qa="signup-name"]');
   readonly signupEmail: Locator = this.page.locator('[data-qa="signup-email"]');
   readonly signupButton: Locator = this.page.locator('[data-qa="signup-button"]');
-  readonly signupEmailExistsError: Locator = this.page.getByText(
-    'Email Address already exist!',
-    { exact: true },
-  );
+  readonly signupEmailExistsError: Locator = this.page.getByText(SITE_MESSAGES.signupEmailExists, {
+    exact: true,
+  });
 
   /** Open the login page; if already on `/login` after logout, wait for the form instead of navigating again. */
   async open(): Promise<void> {
@@ -46,15 +46,26 @@ export class SignupLoginPage extends BasePage {
     await this.fill(this.signupName, name);
     await this.fill(this.signupEmail, email);
     await this.click(this.signupButton);
-    return Promise.race([
-      this.page
-        .locator('[data-qa="create-account"]')
-        .waitFor({ state: 'visible', timeout: env.timeouts.registration })
-        .then(() => 'new-user' as const),
-      this.signupEmailExistsError
-        .waitFor({ state: 'visible', timeout: env.timeouts.registration })
-        .then(() => 'existing-email' as const),
-    ]);
+
+    const createAccountForm = this.page.locator('[data-qa="create-account"]');
+    let result: 'new-user' | 'existing-email' | undefined;
+    await expect
+      .poll(
+        async () => {
+          if (await createAccountForm.isVisible()) {
+            result = 'new-user';
+          } else if (await this.signupEmailExistsError.isVisible()) {
+            result = 'existing-email';
+          }
+          return result !== undefined;
+        },
+        { timeout: env.timeouts.registration },
+      )
+      .toBe(true);
+    if (result === undefined) {
+      throw new Error('Signup completed without a recognized result');
+    }
+    return result;
   }
 
   /** Submit the login and return the result so success and negative scenarios can assert separately. */
@@ -72,13 +83,23 @@ export class SignupLoginPage extends BasePage {
 
     await this.click(this.loginButton);
 
-    return Promise.race([
-      this.logoutLink
-        .waitFor({ state: 'visible', timeout: env.timeouts.navigation })
-        .then(() => 'success' as const),
-      this.loginError
-        .waitFor({ state: 'visible', timeout: env.timeouts.navigation })
-        .then(() => 'failure' as const),
-    ]);
+    let result: 'success' | 'failure' | undefined;
+    await expect
+      .poll(
+        async () => {
+          if (await this.logoutLink.isVisible()) {
+            result = 'success';
+          } else if (await this.loginError.isVisible()) {
+            result = 'failure';
+          }
+          return result !== undefined;
+        },
+        { timeout: env.timeouts.navigation },
+      )
+      .toBe(true);
+    if (result === undefined) {
+      throw new Error('Login completed without a recognized result');
+    }
+    return result;
   }
 }

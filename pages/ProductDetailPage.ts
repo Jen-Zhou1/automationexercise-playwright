@@ -4,6 +4,7 @@
  */
 import { Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { SITE_MESSAGES } from '../testdata/site-messages';
 
 export class ProductDetailPage extends BasePage {
   readonly productInformation: Locator = this.page.locator('.product-information');
@@ -39,7 +40,7 @@ export class ProductDetailPage extends BasePage {
   async addToCart(): Promise<void> {
     await this.click(this.addToCartButton);
     await this.expectVisible(this.cartModal);
-    await this.expectText(this.cartModal, 'Added!');
+    await this.expectText(this.cartModal, SITE_MESSAGES.addToCartSuccess);
   }
 
   async viewCartFromModal(): Promise<void> {

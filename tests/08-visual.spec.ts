@@ -14,9 +14,9 @@
  * project, so the viewports never overwrite each other.
  *
  * Each capture is preceded by stabilizeForScreenshot(): freeze the carousels,
- * wait for fonts and images, move the mouse away, settle. The homepage slider and
- * the recommended strip advance every 5 seconds, so skipping this makes the
- * baseline drift on its own.
+ * wait for fonts and images (aborting with URLs if any image is broken), move the
+ * mouse away, settle. The homepage slider and the recommended strip advance
+ * every 5 seconds, so skipping this makes the baseline drift on its own.
  *
  * Regenerate baselines with: npm run test:visual:update
  */

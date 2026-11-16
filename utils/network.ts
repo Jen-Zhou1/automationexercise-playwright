@@ -13,6 +13,34 @@ import type { Page, Request } from '@playwright/test';
 import { env } from '../config/env';
 import { log } from './logger';
 
+export interface MainDocumentHealth {
+  hasResponse: boolean;
+  status: number;
+}
+
+const mainDocumentHealth = new WeakMap<Page, MainDocumentHealth>();
+
+/** Return the latest main-frame document response status, observing it only once per page. */
+export function getMainDocumentHealth(page: Page): MainDocumentHealth {
+  const existingHealth = mainDocumentHealth.get(page);
+  if (existingHealth) {
+    return existingHealth;
+  }
+
+  const health: MainDocumentHealth = { hasResponse: false, status: 0 };
+  mainDocumentHealth.set(page, health);
+  page.on('response', (response) => {
+    if (
+      response.request().resourceType() === 'document' &&
+      response.frame() === page.mainFrame()
+    ) {
+      health.hasResponse = true;
+      health.status = response.status();
+    }
+  });
+  return health;
+}
+
 /** Intercept and abort third-party ad/analytics requests */
 export async function blockThirdPartyAds(page: Page): Promise<void> {
   for (const pattern of env.adDomains) {
