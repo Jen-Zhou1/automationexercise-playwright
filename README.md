@@ -2,10 +2,9 @@
 
 > Playwright 1.64.1 · TypeScript · Page Object Model · custom fixtures
 > Application under test: <https://automationexercise.com> (public e-commerce demo site)
-Main = final code; Draft = first draft.
 
 ## 1. Brief coverage
-
+Main = final code; Draft = first draft.
 | Requirement (from the brief) | Where it is implemented |
 |---|---|
 | Page Object Model | `pages/` — `Component` owns shared wrapped actions; `BasePage` adds site-relative navigation for page objects |
