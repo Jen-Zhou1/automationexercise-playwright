@@ -2,7 +2,7 @@
 
 > Playwright 1.64.1 · TypeScript · Page Object Model · custom fixtures
 > Application under test: <https://automationexercise.com> (public e-commerce demo site)
-> Main = final code; Draft = first draft.
+Main = final code; Draft = first draft.
 
 ## 1. Brief coverage
 
