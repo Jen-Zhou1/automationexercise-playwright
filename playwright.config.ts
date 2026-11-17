@@ -80,26 +80,28 @@ const projects = [
     },
   },
 
-  //* --- Disabled by default; enable one at a time when a cross-engine run is needed ---
-  // {
-  //   name: 'edge',
-  //   use: { ...devices['Desktop Edge'], ...sharedOptions },
-  // },
-  // {
-  //   name: 'firefox',
-  //   use: { ...devices['Desktop Firefox'], ...sharedOptions },
-  // },
-  // {
-  //   name: 'webkit',
-  //   use: { ...devices['Desktop Safari'], ...sharedOptions },
-  // },
-  // {
-  //   name: 'mobile-safari',
-  //   // iPhone 13 binds WebKit, a different engine from mobile-chrome: its visual
-  //   // baselines are separate automatically, because the project name differs.
-  //   use: { ...devices['iPhone 13'], ...sharedOptions },
-  // },
-  //--- end of disabled block --- */
+  /*
+   * --- Disabled by default; enable one at a time when a cross-engine run is needed ---
+   * {
+   *   name: 'edge',
+   *   use: { ...devices['Desktop Edge'], ...sharedOptions },
+   * },
+   * {
+   *   name: 'firefox',
+   *   use: { ...devices['Desktop Firefox'], ...sharedOptions },
+   * },
+   * {
+   *   name: 'webkit',
+   *   use: { ...devices['Desktop Safari'], ...sharedOptions },
+   * },
+   * {
+   *   name: 'mobile-safari',
+   *   // iPhone 13 binds WebKit, a different engine from mobile-chrome: its visual
+   *   // baselines are separate automatically, because the project name differs.
+   *   use: { ...devices['iPhone 13'], ...sharedOptions },
+   * },
+   * --- end of disabled block ---
+   */
 ];
 
 /**
@@ -141,7 +143,7 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
+  retries: env.retries,
 
   /**
    * A listing run keeps only the list reporter (no HTML report, no results.json).

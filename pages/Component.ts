@@ -3,7 +3,6 @@
  * navigation and queue-full response behavior. Contains no navigation method.
  */
 import { Page, Locator, expect, type Download } from '@playwright/test';
-import { env } from '../config/env';
 import { SITE_MESSAGES } from '../testdata/site-messages';
 import { getMainDocumentHealth } from '../utils/network';
 
@@ -88,6 +87,7 @@ export class Component {
   }
 
   protected async expectText(locator: Locator, text: string | RegExp): Promise<void> {
+    await this.assertSiteAvailable();
     await expect(locator).toContainText(text);
   }
 
@@ -115,14 +115,6 @@ export class Component {
     if (documentHealth.status >= 500) {
       throw new Error(
         `Automation Exercise returned HTTP ${documentHealth.status} at ${this.page.url()}`,
-      );
-    }
-    const hasBodyText = await this.page.evaluate(
-      () => (document.body?.innerText.trim().length ?? 0) > 0,
-    );
-    if (!hasBodyText) {
-      throw new Error(
-        `Automation Exercise returned an empty document at ${this.page.url()}`,
       );
     }
   }

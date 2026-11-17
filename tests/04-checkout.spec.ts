@@ -117,7 +117,9 @@ test.describe('Checkout E2E (independent user paths)', () => {
       const checkout = new CheckoutPage(page);
       await expect(page).toHaveURL(/\/checkout/);
       await checkout.expectAddressDetailsVisible();
-      await checkout.expectOrderReviewVisible();
+      await checkout.expectOrderReviewVisible([
+        { name: PRODUCTS.blueTop.name, quantity: 1, unitPrice: PRODUCTS.blueTop.unitPrice },
+      ]);
       await checkout.expectAddressesMatch(user);
       await checkout.addComment(ORDER_COMMENT);
       await checkout.placeOrder();

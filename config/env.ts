@@ -1,8 +1,11 @@
 /**
- * Configurations (config/env.ts)
+ * Runtime configuration (config/env.ts)
  *
- * The only module that reads process.env. Every other file imports `env`,
- * so a machine-specific value can never leak into a page object or a test.
+ * This is the project's single source of business configuration: tests and
+ * page objects import `env`, while a few Playwright runtime flags are read by
+ * the config file itself (`HEADLESS`, `SLOW_MO`, `CI`, `AE_REPORT_RUN_ID`).
+ * Keeping these values here avoids machine-specific state leaking into the UI
+ * layer while still allowing the runner to opt into platform-specific behavior.
  */
 import 'dotenv/config';
 
@@ -17,6 +20,21 @@ const toPositiveInteger = (
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed <= 0) {
     throw new Error(`${variableName} must be a positive integer; received "${value}"`);
+  }
+  return parsed;
+};
+
+const toNonNegativeInteger = (
+  value: string | undefined,
+  fallback: number,
+  variableName: string,
+): number => {
+  if (value === undefined || value.trim() === '') {
+    return fallback;
+  }
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 0) {
+    throw new Error(`${variableName} must be a non-negative integer; received "${value}"`);
   }
   return parsed;
 };
@@ -72,6 +90,13 @@ export const env = {
     navigation: toPositiveInteger(process.env.AE_NAV_TIMEOUT, 90_000, 'AE_NAV_TIMEOUT'),
     expect: toPositiveInteger(process.env.AE_EXPECT_TIMEOUT, 20_000, 'AE_EXPECT_TIMEOUT'),
   },
+
+  /** Retry budget for Playwright tests. This is intentionally configurable via AE_RETRIES. */
+  retries: toNonNegativeInteger(
+    process.env.AE_RETRIES,
+    process.env.CI ? 1 : 0,
+    'AE_RETRIES',
+  ),
 
   /**
    * Visual tests run on Desktop Chrome (1280), Pixel 7 (412) and the tablet

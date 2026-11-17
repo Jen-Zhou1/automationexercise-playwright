@@ -9,7 +9,7 @@ test-results/
 .cache/
 *.log
 .env
-capstone/
+future/
 
 # Downloaded invoices
 # Playwright writes invoices to reports/<timestamp>/artifacts/ via outputPath, already ignored with reports/;

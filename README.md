@@ -49,21 +49,6 @@ Eight spec files in three roles. They are not eight competing test cases.
 | 07 | `07-a11y.spec.ts` | — | axe scans with a critical-severity gate | `@a11y` |
 | 08 | `08-visual.spec.ts` | — | full-page screenshot comparison, 10 checkpoints per viewport | `@visual` |
 
-The brief asks for **5–8 test cases**, not 5–8 files. Counting the two layers separately:
-
-| Layer | Count |
-|---|---:|
-| Business scenarios (`TC-01`…`TC-08`) | 8 |
-| Headline `test()` blocks | 15 |
-| Negative branches (login failures, invalid contact submissions) | 5 |
-| Smoke lane (`@smoke`: one happy checkout and one successful contact submission) | 2 |
-| Capability suites (`@visual` 3, `@a11y` 3) | 6 |
-| Total listed tests across all projects | 55 |
-
-One scenario can need several `test()` blocks: checkout follows the site's three official paths (TC14/15/16),
-and merging them would hide which path broke. Visual and accessibility stay in separate files because each
-fails for a different reason and needs a different remedy — approve a baseline, triage site debt, or fix the
-build.
 
 **Tags.** Four, one per execution contract. `@visual` and `@a11y` are deliberately not `@regression`: a
 shifted baseline is either an intended redesign or a real regression, and an axe violation is pre-existing
@@ -75,7 +60,7 @@ site debt; neither should turn a functional run red. `@smoke` is a true subset o
 | `npm run test:smoke` | 2 tests: checkout and successful contact submission |
 | `npm run test:regression` | 18 tests (20 tagged, 2 excluded) |
 | `npm run test:gate` | smoke, then regression (2 + 18); regression still runs if smoke fails |
-| `npm run test:regression:all-viewports` | 36 tests: 18 each on Chrome and mobile Chromium |
+| `npm run test:regression:all-viewports` | 36 tests: 18 each on Chrome and mobile Chromium. The script runs the two functional-capable viewports only; `tablet-chrome` is deliberately excluded because it is visual-only via project-level `grep: /@visual/`. |
 | `npm run test:a11y` | 3 scans, desktop only |
 | `npm run test:visual` | 3 tests × 3 viewports = 9 comparisons |
 | `npm run test:checkout` | the three checkout journeys |
@@ -131,6 +116,7 @@ public demo, so they are opt-in. The tablet project remains visual-only:
 ```bash
 npx playwright install firefox webkit msedge
 npx playwright test --project=firefox --grep "@smoke"
+npx playwright test --project=firefox --grep "@regression" --grep-invert "@smoke"
 ```
 
 Visual baselines are stored per project name, so a new engine starts with its own empty baseline set and

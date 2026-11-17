@@ -86,7 +86,7 @@ check site health so an overloaded site reports a useful cause instead of "eleme
 | `npm run test:smoke` | 2 | Register → search → add to cart → logout → delete, plus one real form submission (≤ 3 min) |
 | `npm run test:regression` | 18 | Everything functional, negative branches included; the 2 smoke tests are excluded by `--grep-invert` |
 | `npm run test:gate` | 2 + 18 | Smoke first, then regression; regression still runs if smoke fails |
-| `npm run test:regression:all-viewports` | 36 | 18 non-smoke regression tests each on Chrome and mobile Chromium |
+| `npm run test:regression:all-viewports` | 36 | 18 non-smoke regression tests each on Chrome and mobile Chromium. The script runs the two functional-capable viewports only; the tablet project is intentionally excluded because it is visual-only via project-level `grep: /@visual/` |
 | `npm run test:visual` | 3 × 3 viewports | Full-page pixel comparisons, one baseline set per viewport (30 files) |
 | Manual `visual-update` | 3 × 3 viewports | Regenerates visual baselines; publishes the snapshots as an artifact for review and manual commit |
 | `npm run test:a11y` | 3 | axe scans with a severity gate |
@@ -132,7 +132,9 @@ move the mouse away → settle 300 ms → `toHaveScreenshot`. Broken external im
 Two consequences worth noting: freezing also fixes the add-to-cart race (the product id is read and clicked in the same
 resolution as the freeze), and screenshots are **full page**, so header, recommended items and footer subscription are
 inside the baseline. The threshold is a **ratio** of page area (1%, 2% on the narrower viewports) because page height
-varies with content while a ratio stays meaningful.
+varies with content while a ratio stays meaningful. Visual tests intentionally include a single retry via
+`test.describe.configure({ retries: 1 })` because the public demo occasionally fails on transient asset issues; the retry
+is bounded and the mismatch still fails if the second capture is wrong.
 
 ## 5. Reporting
 
